@@ -1,13 +1,10 @@
 import yaml
 
 from contextlib import contextmanager
-from typing import Union
-
-import pymgrid
 
 
 @contextmanager
-def dry_run(pymgrid_object: Union['pymgrid.Microgrid', 'pymgrid.modules.base.BaseMicrogridModule']):
+def dry_run(pymgrid_object):
     """
     A context manager to test modifications of a pymgrid object without modifying said object.
 
