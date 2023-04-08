@@ -164,25 +164,33 @@ class TestMicrogrid(TestCase):
 
         self.assertEqual(microgrid.initial_step, 0)
 
-        for module_name, module in microgrid.modules.iterdict():
-            with self.subTest(module_name=module_name):
-                try:
-                    initial_step = module.initial_step
-                except AttributeError:
-                    continue
+        for module_name, module_list in microgrid.modules.iterdict():
+            for n, module in enumerate(module_list):
+                with self.subTest(module_name=module_name, module_num=n):
+                    try:
+                        initial_step = module.initial_step
+                    except AttributeError:
+                        continue
 
-                self.assertEqual(initial_step, 0)
+                    self.assertEqual(initial_step, 0)
 
         microgrid.initial_step = 1
 
-        for module_name, module in microgrid.modules.iterdict():
-            with self.subTest(module_name=module_name):
-                try:
-                    initial_step = module.initial_step
-                except AttributeError:
-                    continue
+        self.assertEqual(microgrid.initial_step, 1)
+        self.assertEqual(
+            microgrid.modules.get_attrs('initial_step', unique=True, as_pandas=False),
+            {'initial_step': 1}
+        )
 
-                self.assertEqual(initial_step, 1)
+        for module_name, module_list in microgrid.modules.iterdict():
+            for n, module in enumerate(module_list):
+                with self.subTest(module_name=module_name, module_num=n):
+                    try:
+                        initial_step = module.initial_step
+                    except AttributeError:
+                        continue
+
+                    self.assertEqual(initial_step, 1)
 
 
 class TestMicrogridLoadPV(TestCase):
