@@ -94,6 +94,49 @@ class TestDiscreteEnvScenario(TestCase):
 
         self.assertEqual(obs.tolist(), expected_obs)
 
+    def test_set_initial_step(self):
+        env = DiscreteMicrogridEnv.from_scenario(self.microgrid_number)
+        env = deepcopy(env)
+
+        self.assertEqual(env.initial_step, 0)
+
+        self.assertEqual(env.initial_step, 0)
+        self.assertEqual(
+            env.modules.get_attrs('initial_step', unique=True, as_pandas=False),
+            {'initial_step': 0}
+        )
+
+        for module_name, module_list in env.modules.iterdict():
+            for n, module in enumerate(module_list):
+                with self.subTest(module_name=module_name, module_num=n):
+                    try:
+                        initial_step = module.initial_step
+                    except AttributeError:
+                        continue
+
+                    self.assertEqual(initial_step, 0)
+
+        env = deepcopy(env)
+
+        env.initial_step = 1
+
+        self.assertEqual(env.initial_step, 1)
+        self.assertEqual(
+            env.modules.get_attrs('initial_step', unique=True, as_pandas=False),
+            {'initial_step': 1}
+        )
+
+        for module_name, module_list in env.modules.iterdict():
+            for n, module in enumerate(module_list):
+                with self.subTest(module_name=module_name, module_num=n):
+                    try:
+                        initial_step = module.initial_step
+                    except AttributeError:
+                        continue
+
+                    self.assertEqual(initial_step, 1)
+
+
 
 class TestDiscreteEnvScenario1(TestDiscreteEnvScenario):
     microgrid_number = 1
