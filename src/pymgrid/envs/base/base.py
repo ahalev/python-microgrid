@@ -54,6 +54,12 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         If None, :attr:`.initial_step` and :attr:`.final_step` are used to define every episode.
 
+    step_callback: callable or None, default None
+        Function to call on every ``step``.
+
+    reset_callback: callable or None, default None
+        Function to call on every ``reset``.
+
     """
 
     action_space = None
@@ -90,7 +96,9 @@ class BaseMicrogridEnv(Microgrid, Env):
                  reward_shaping_func=None,
                  trajectory_func=None,
                  flat_spaces=True,
-                 observation_keys=()
+                 observation_keys=(),
+                 step_callback=None,
+                 reset_callback=None
                  ):
 
         super().__init__(modules,
@@ -102,6 +110,8 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         self._flat_spaces = flat_spaces
         self.observation_keys = self._validate_observation_keys(observation_keys)
+        self.step_callback = step_callback if step_callback is not None else lambda *a, **k: None
+        self.reset_callback = reset_callback if reset_callback is not None else lambda *a, **k: None
 
         self.action_space = self._get_action_space()
         self.observation_space, self._nested_observation_space = self._get_observation_space()
@@ -167,6 +177,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def reset(self):
         obs = super().reset()
+        self.reset_callback()
         return self._get_obs(obs)
 
     def step(self, action, normalized=True):
@@ -206,8 +217,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         """
 
         obs, reward, done, info = self.run(action, normalized=normalized)
-
         obs = self._get_obs(obs)
+        self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
 
         return obs, reward, done, info
 
@@ -224,6 +235,15 @@ class BaseMicrogridEnv(Microgrid, Env):
             obs = flatten(self._nested_observation_space, obs)
 
         return obs
+
+    def _get_step_callback_info(self, action, obs, reward, done, info):
+        return {
+            'action': action,
+            'obs': obs,
+            'reward': reward,
+            'done': done,
+            'info': info
+        }
 
     def render(self, mode="human"):
         """:meta private:"""
