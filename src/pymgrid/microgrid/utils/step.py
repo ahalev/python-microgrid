@@ -39,11 +39,14 @@ class MicrogridStep:
         return self._obs, self.shaped_reward(), self._done, self._output_info()
 
     def shaped_reward(self):
-        if self._reward_shaping_func is not None:
-            assert isinstance(self.cost_info, dict)
-            return self._reward_shaping_func(self._output_info(), self.cost_info)
+        if self._reward_shaping_func is None:
+            return self._reward
+        elif not callable(self._reward_shaping_func):
+            raise TypeError(f'reward_shaping_func {self._reward_shaping_func} is not callable.')
 
-        return self._reward
+        assert isinstance(self.cost_info, dict)
+        return self._reward_shaping_func(self._output_info(), self.cost_info)
+
 
     def _output_info(self):
         return {k: v for k, v in self._info.items() if k not in ('absorbed_energy', 'provided_energy')}
