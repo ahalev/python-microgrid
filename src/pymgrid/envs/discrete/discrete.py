@@ -44,7 +44,9 @@ class DiscreteMicrogridEnv(BaseMicrogridEnv, PriorityListAlgo):
                  trajectory_func=None,
                  flat_spaces=True,
                  observation_keys=None,
-                 remove_redundant_gensets=True
+                 remove_redundant_gensets=True,
+                 step_callback=None,
+                 reset_callback=None
                  ):
         super().__init__(modules,
                          add_unbalanced_module=add_unbalanced_module,
@@ -53,7 +55,9 @@ class DiscreteMicrogridEnv(BaseMicrogridEnv, PriorityListAlgo):
                          reward_shaping_func=reward_shaping_func,
                          trajectory_func=trajectory_func,
                          flat_spaces=flat_spaces,
-                         observation_keys=observation_keys)
+                         observation_keys=observation_keys,
+                         step_callback=step_callback,
+                         reset_callback=reset_callback)
 
         self.action_space, self.actions_list = self._get_action_space(remove_redundant_gensets)
 
@@ -141,6 +145,11 @@ class DiscreteMicrogridEnv(BaseMicrogridEnv, PriorityListAlgo):
         self._microgrid_logger.log(action=action)
         microgrid_action = self._get_action(action)
         return super().step(microgrid_action, normalized=False)
+
+    def _get_step_callback_info(self, action, obs, reward, done, info):
+        info = super()._get_step_callback_info(action, obs, reward, done, info)
+        info['action'] = self._microgrid_logger['action'][-1]
+        return info
 
     def sample_action(self, strict_bound=False, sample_flex_modules=False):
         return self.action_space.sample()
