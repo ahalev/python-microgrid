@@ -1,4 +1,4 @@
-from gym.spaces import Dict, Tuple, flatten_space
+from gym.spaces import Dict, Tuple, flatten_space, unflatten
 from warnings import warn
 
 from pymgrid.envs.base import BaseMicrogridEnv
@@ -61,17 +61,8 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
         self._nested_action_space = self._get_nested_action_space()
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
-    def _get_action(self, action):
-        # Action does not have fixed sinks (loads); add those values.
-        assert action in self._nested_action_space, 'Action is not in action space.'
-        action = action.copy()
-        for name, module_list in self.fixed.sinks.iterdict():
-            action[name] = [module.to_normalized(-1 * module.max_consumption, act=True) for module in module_list]
-        return action
-
-    def step(self, action):
-        action = self._get_action(action)
-        return super().run(action)
+    def convert_action(self, action):
+        return unflatten(self._nested_action_space, action)
 
     def run(self, action, normalized=True):
         warn('run() should not be called directly in environments.')

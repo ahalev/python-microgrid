@@ -83,9 +83,11 @@ class DiscreteMicrogridEnv(BaseMicrogridEnv, PriorityListAlgo):
 
         return space, priority_lists
 
-    def _get_action(self, action_num):
+    def convert_action(self, action):
         if action_num not in self.action_space:
             raise ValueError(f" Action {action_num} not in action space {self.action_space}")
+
+        self._microgrid_logger.log(action=action)
 
         priority_list = list(self.actions_list[action_num])
 
