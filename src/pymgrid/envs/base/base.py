@@ -266,7 +266,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def render(self, mode="human"):
         """:meta private:"""
-        raise NotImplementedError
+        raise RuntimeError('rendering is not possible in Microgrid environments.')
 
     @property
     def unwrapped(self):
