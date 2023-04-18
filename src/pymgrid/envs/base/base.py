@@ -215,12 +215,31 @@ class BaseMicrogridEnv(Microgrid, Env):
             Additional information from this step.
 
         """
-
+        action = self.convert_action(action)
         obs, reward, done, info = self.run(action, normalized=normalized)
         obs = self._get_obs(obs)
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
 
         return obs, reward, done, info
+
+    @abstractmethod
+    def convert_action(self, action):
+        """
+        Convert a reinforcement learning action to a microgrid control.
+
+        In a discrete environment, for example, converts an integer to a microgrid control.
+
+        Parameters
+        ----------
+        action : int or np.ndarray
+            Action to convert. Integer if discrete, np.ndarray if continuous.
+
+        Returns
+        -------
+        converted_action : dict[str, list[float]]
+            Resultant microgrid control.
+        """
+        pass
 
     def _get_obs(self, obs):
         if self.observation_keys:
