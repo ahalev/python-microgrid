@@ -4,52 +4,6 @@ from pymgrid.envs.base import BaseMicrogridEnv
 
 
 class ContinuousMicrogridEnv(BaseMicrogridEnv):
-    """
-    Microgrid environment with a continuous action space.
-
-    Implements the `OpenAI Gym API <https://www.gymlibrary.dev//>`_ for a microgrid;
-    inherits from both :class:`.Microgrid` and :class:`gym.Env`.
-
-    Parameters
-    ----------
-    modules : list, Microgrid, NonModularMicrogrid, or int.
-        The constructor can be called in three ways:
-
-        1. Passing a list of microgrid modules. This is identical to the :class:`.Microgrid` constructor.
-
-        2. Passing a :class:`.Microgrid` or :class:`.NonModularMicrogrid` instance.
-           This will effectively wrap the microgrid instance with the Gym API.
-
-        3. Passing an integer in [0, 25).
-           This will be result in loading the corresponding `pymgrid25` benchmark microgrids.
-
-    add_unbalanced_module : bool, default True.
-        Whether to add an unbalanced energy module to your microgrid. Such a module computes and attributes
-        costs to any excess supply or demand.
-        Set to True unless ``modules`` contains an :class:`.UnbalancedEnergyModule`.
-
-    loss_load_cost : float, default 10.0
-        Cost per unit of unmet demand. Ignored if ``add_unbalanced_module=False``.
-
-    overgeneration_cost : float, default 2.0
-        Cost per unit of excess generation.  Ignored if ``add_unbalanced_module=False``.
-
-    flat_spaces : bool, default True
-        Whether the environment's spaces should be flat.
-
-        If True, all continuous spaces are :class:`gym:gym.spaces.Box`.
-
-        Otherwise, they are nested :class:`gym:gym.spaces.Dict` of :class:`gym:gym.spaces.Tuple`
-        of :class:`gym:gym.spaces.Box`, corresponding to the structure of the ``control`` arg of :meth:`.Microgrid.run`.
-
-    trajectory_func : callable or None, default None
-        Callable that sets an initial and final step for an episode. ``trajectory_func`` must take two inputs:
-        :attr:`.initial_step` and :attr:`.final_step`, and return two integers: the initial and final step for
-        that particular episode, respectively. This function will be called every time :meth:`.reset` is called.
-
-        If None, :attr:`.initial_step` and :attr:`.final_step` are used to define every episode.
-
-    """
     _nested_action_space = None
 
     def _get_nested_action_space(self):
