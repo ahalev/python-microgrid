@@ -1,6 +1,6 @@
 # python-microgrid
 
-![Build](https://github.com/Total-RD/pymgrid/workflows/build/badge.svg?dummy=unused)
+![Build](https://github.com/ahalev/python-microgrid/workflows/build/badge.svg?dummy=unused)
 
 *python-microgrid* is a python library to generate and simulate a large number of microgrids. It is an extension of TotalEnergies' [*pymgrid*](https://github.com/Total-RD/pymgrid).
 
