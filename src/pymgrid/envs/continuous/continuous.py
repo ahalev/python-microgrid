@@ -1,5 +1,4 @@
 from gym.spaces import Dict, Tuple, flatten_space, unflatten
-from warnings import warn
 
 from pymgrid.envs.base import BaseMicrogridEnv
 
