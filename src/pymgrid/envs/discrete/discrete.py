@@ -144,9 +144,7 @@ class DiscreteMicrogridEnv(BaseMicrogridEnv, PriorityListAlgo):
             Additional information from this step.
 
         """
-        self._microgrid_logger.log(action=action)
-        microgrid_action = self._get_action(action)
-        return super().step(microgrid_action, normalized=False)
+        return super().step(action, normalized=False)
 
     def _get_step_callback_info(self, action, obs, reward, done, info):
         info = super()._get_step_callback_info(action, obs, reward, done, info)
