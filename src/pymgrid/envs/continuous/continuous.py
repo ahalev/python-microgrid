@@ -8,7 +8,7 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
 
     def _get_nested_action_space(self):
         return Dict({name: Tuple([module.action_space['normalized'] for module in modules_list])
-                                 for name, modules_list in self.fixed.iterdict() if modules_list[0].is_source})
+                                 for name, modules_list in self.modules.controllable.iterdict()})
 
     def _get_action_space(self):
         self._nested_action_space = self._get_nested_action_space()
