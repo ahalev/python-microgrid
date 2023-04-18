@@ -17,6 +17,3 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
     def convert_action(self, action):
         return unflatten(self._nested_action_space, action)
 
-    def run(self, action, normalized=True):
-        warn('run() should not be called directly in environments.')
-        return super().run(action, normalized=normalized)
