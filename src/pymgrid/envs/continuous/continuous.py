@@ -10,7 +10,7 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
         return Dict({name: Tuple([module.action_space['normalized'] for module in modules_list])
                                  for name, modules_list in self.modules.controllable.iterdict()})
 
-    def _get_action_space(self):
+    def _get_action_space(self, remove_redundant_actions=False):
         self._nested_action_space = self._get_nested_action_space()
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
