@@ -270,13 +270,20 @@ class MicrogridSpace(_PymgridSpace):
             warnings.warn(f"gym.Space does not accept argument 'seed' in version {gym.__version__}; this argument will "
                           f"be ignored. Upgrade your gym version with 'pip install -U gym' to use this functionality.")
 
-        self._spread = self._get_spread()
+        self._unnorm_spread = self._get_spread(normalized=False)
+        self._norm_spread = self._get_spread(normalized=True)
+        self._norm_over_unnorm = self.dict_op(self._norm_spread, self._unnorm_spread, operator.truediv)
 
-    def _get_spread(self):
+    def _get_spread(self, normalized):
+        if normalized:
+            low, high = self._normalized.low, self._normalized.high
+        else:
+            low, high = self._unnormalized.low, self._unnormalized.high
+
         spread = {}
 
-        for k, high_list in self._unnormalized.high.items():
-            low_list = self._unnormalized.low[k]
+        for k, high_list in high.items():
+            low_list = low[k]
             s = [h-l for h, l in zip(high_list, low_list)]
             for s_val in s:
                 s_val[s_val == 0] = 1
@@ -286,25 +293,22 @@ class MicrogridSpace(_PymgridSpace):
         return spread
 
     def normalize(self, val):
-        low, high = self._unnormalized.low, self._unnormalized.high
-
         self._shape_check(val, 'normalize')
-        val_minus_low = self.dict_op(val, low, operator.sub)
-        normalized = self.dict_op(val_minus_low, self._spread, operator.truediv)
 
-        # normalized = (val - low) / self._spread
+        val_minus_low = self.dict_op(val, self._unnormalized.low, operator.sub)
+        times_spread_ratio = self.dict_op(val_minus_low, self._norm_over_unnorm, operator.mul)
+        plus_normalized_low = self.dict_op(times_spread_ratio, self._normalized.low, operator.add)
 
-        return normalized
+        return plus_normalized_low
 
     def denormalize(self, val):
-        low, high = self._unnormalized.low, self._unnormalized.high
-
         self._shape_check(val, 'denormalize')
 
-        val_times_spread = self.dict_op(val, self._spread, operator.mul)
-        denormalized = self.dict_op(val_times_spread, low, operator.add)
+        val_minus_low = self.dict_op(val, self._normalized.low, operator.sub)
+        times_spread_ratio = self.dict_op(val_minus_low, self._norm_over_unnorm, operator.truediv)
+        plus_unnormalized_low = self.dict_op(times_spread_ratio, self._unnormalized.low, operator.add)
 
-        return denormalized
+        return plus_unnormalized_low
 
     @staticmethod
     def dict_op(first, second, op):
