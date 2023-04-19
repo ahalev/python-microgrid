@@ -733,6 +733,15 @@ class BaseMicrogridModule(yaml.YAMLObject):
 
         return low, high
 
+    @normalized_action_bounds.setter
+    def normalized_action_bounds(self, value):
+        if len(value) != 2:
+            raise TypeError('Invalid number of components.')
+        if value[0] > value[1]:
+            raise ValueError('Low value cannot be greater than high value.')
+
+        self._action_space = self._get_action_spaces(value)
+
     @property
     def is_source(self):
         """
