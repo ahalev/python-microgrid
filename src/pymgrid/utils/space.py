@@ -214,8 +214,11 @@ class ModuleSpace(_PymgridSpace):
             warnings.warn(f"gym.Space does not accept argument 'seed' in version {gym.__version__}; this argument will "
                           f"be ignored. Upgrade your gym version with 'pip install -U gym' to use this functionality.")
 
-        self._spread = self._unnormalized.high - self._unnormalized.low
-        self._spread[self._spread == 0] = 1
+        self._unnorm_spread = self._unnormalized.high - self._unnormalized.low
+        self._unnorm_spread[self._unnorm_spread == 0] = 1
+
+        self._norm_spread = self._normalized.high - self._normalized.low
+        self._norm_spread[self._norm_spread == 0] = 1
 
     def normalize(self, val):
         low, high = self._unnormalized.low, self._unnormalized.high
