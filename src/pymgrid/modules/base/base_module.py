@@ -37,6 +37,7 @@ class BaseMicrogridModule(yaml.YAMLObject):
     def __init__(self,
                  raise_errors,
                  initial_step=0,
+                 normalized_action_bounds=(0, 1),
                  provided_energy_name='provided_energy',
                  absorbed_energy_name='absorbed_energy'
                  ):
@@ -44,17 +45,18 @@ class BaseMicrogridModule(yaml.YAMLObject):
         self.raise_errors = raise_errors
         self.initial_step = initial_step
         self._current_step = initial_step
-        self._action_space = self._get_action_spaces()
+        self._action_space = self._get_action_spaces(normalized_action_bounds)
         self._observation_space = self._get_observation_spaces()
         self.provided_energy_name, self.absorbed_energy_name = provided_energy_name, absorbed_energy_name
         self._logger = ModularLogger()
         self.name = (None, None)  # set by ModularMicrogrid
 
-    def _get_action_spaces(self):
+    def _get_action_spaces(self, normalized_bounds):
         unnormalized_low = self.min_act if isinstance(self.min_act, np.ndarray) else np.array([self.min_act])
         unnormalized_high = self.max_act if isinstance(self.max_act, np.ndarray) else np.array([self.max_act])
         return ModuleSpace(unnormalized_low=unnormalized_low,
-                           unnormalized_high=unnormalized_high)
+                           unnormalized_high=unnormalized_high,
+                           normalized_bounds=normalized_bounds)
 
     def _get_observation_spaces(self):
         unnormalized_low = self.min_obs if isinstance(self.min_obs, np.ndarray) else np.array([self.min_obs])

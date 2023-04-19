@@ -69,6 +69,7 @@ class GensetModule(BaseMicrogridModule):
                  allow_abortion=True,
                  init_start_up=True,
                  initial_step=0,
+                 normalized_action_bounds=(0, 1),
                  raise_errors=False,
                  provided_energy_name='genset_production'):
 
@@ -94,6 +95,7 @@ class GensetModule(BaseMicrogridModule):
 
         super().__init__(raise_errors,
                          initial_step=initial_step,
+                         normalized_action_bounds=normalized_action_bounds,
                          provided_energy_name=provided_energy_name,
                          absorbed_energy_name=None)
 

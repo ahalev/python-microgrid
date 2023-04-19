@@ -88,6 +88,7 @@ class BatteryModule(BaseMicrogridModule):
                  init_charge=None,
                  init_soc=None,
                  initial_step=0,
+                 normalized_action_bounds=(0, 1),
                  raise_errors=False):
         assert 0 < efficiency <= 1
         self.min_capacity = min_capacity
@@ -105,6 +106,7 @@ class BatteryModule(BaseMicrogridModule):
 
         super().__init__(raise_errors,
                          initial_step=initial_step,
+                         normalized_action_bounds=normalized_action_bounds,
                          provided_energy_name='discharge_amount',
                          absorbed_energy_name='charge_amount')
 
