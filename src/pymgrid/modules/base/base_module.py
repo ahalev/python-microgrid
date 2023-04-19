@@ -713,13 +713,23 @@ class BaseMicrogridModule(yaml.YAMLObject):
         normalized_action_bounds : tuple
             Normalized bounds
         """
+
+        low = np.unique(self._action_space.normalized.low)
+        high = np.unique(self._action_space.normalized.high)
+
         try:
-            low = np.unique(self._action_space.normalized.low).item()
-            high = np.unique(self._action_space.normalized.high).item()
+            low = low.item()
+            high = high.item()
         except ValueError:
             if not self._action_space.shape == (0, ):
                 raise
             low, high = 0, 1
+
+        if low.is_integer():
+            low = int(low)
+
+        if high.is_integer():
+            high = int(high)
 
         return low, high
 
