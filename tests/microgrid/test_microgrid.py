@@ -72,6 +72,53 @@ class TestMicrogrid(TestCase):
                     with self.subTest(module_name=module_name, module_num=module_num):
                         self.assertIn(denormalized[module_name][module_num], module.action_space.unnormalized)
 
+    def test_action_space_normalize_different_bounds(self):
+        microgrid = get_modular_microgrid(normalized_action_bounds=[-2, 3])
+
+        actions = [
+            {'battery': [-50], 'genset': [np.array([0,0])], 'grid': [0]},
+            {'battery': [0], 'genset': [np.array([0.5, 25])], 'grid': [50]},
+            {'battery': [50], 'genset': [np.array([1, 50])], 'grid': [100]},
+            {'battery': [50], 'genset': [np.array([0, 50])], 'grid': [100]}
+        ]
+
+        normalized_actions = [
+            {'battery': [np.array([-2])], 'genset': [np.array([-2, -2])], 'grid': [np.array([-2])]},
+            {'battery': [np.array([0.5])], 'genset': [np.array([0.5, 0.5])], 'grid': [np.array([0.5])]},
+            {'battery': [np.array([3])], 'genset': [np.array([3, 3])], 'grid': [np.array([3])]},
+            {'battery': [np.array([3])], 'genset': [np.array([-2, 3])], 'grid': [np.array([3])]}
+        ]
+
+        for action, expected_normalized_action in zip(actions, normalized_actions):
+            with self.subTest(action=action, expected_normalized_action=expected_normalized_action):
+                normalized = microgrid.microgrid_action_space.normalize(action)
+                for k, v in expected_normalized_action.items():
+                    self.assertEqual(v, normalized[k])
+
+
+    def test_action_space_denormalize_different_bounds(self):
+        microgrid = get_modular_microgrid(normalized_action_bounds=[-2, 3])
+
+        actions = [
+            {'battery': [np.array([-2])], 'genset': [np.array([-2, -2])], 'grid': [np.array([-2])]},
+            {'battery': [np.array([0.5])], 'genset': [np.array([0.5, 0.5])], 'grid': [np.array([0.5])]},
+            {'battery': [np.array([3])], 'genset': [np.array([3, 3])], 'grid': [np.array([3])]},
+            {'battery': [np.array([3])], 'genset': [np.array([-2, 3])], 'grid': [np.array([3])]}
+        ]
+
+        denormalized_actions = [
+            {'battery': [-50], 'genset': [np.array([0,0])], 'grid': [0]},
+            {'battery': [0], 'genset': [np.array([0.5, 25])], 'grid': [50]},
+            {'battery': [50], 'genset': [np.array([1, 50])], 'grid': [100]},
+            {'battery': [50], 'genset': [np.array([0, 50])], 'grid': [100]}
+        ]
+
+        for action, expected_denormalized_action in zip(actions, denormalized_actions):
+            with self.subTest(action=action, expected_normalized_action=expected_denormalized_action):
+                denormalized = microgrid.microgrid_action_space.denormalize(action)
+                for k, v in expected_denormalized_action.items():
+                    self.assertEqual(v, denormalized[k])
+
     def test_sample_action(self):
         microgrid = get_modular_microgrid()
         action = microgrid.sample_action()
