@@ -1,12 +1,6 @@
 import numpy as np
-import pandas as pd
 
-
-from pymgrid import Microgrid
-from pymgrid.modules import LoadModule, RenewableModule
 from pymgrid.utils.space import ModuleSpace
-
-from tests.helpers.modular_microgrid import get_modular_microgrid
 from tests.helpers.test_case import TestCase
 
 
