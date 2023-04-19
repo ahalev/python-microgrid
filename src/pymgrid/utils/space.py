@@ -55,7 +55,7 @@ class _PymgridDict(Dict):
         if isinstance(d, dict):
             transformed = {}
             for k, v in d.items():
-                if isinstance(v, Space):
+                if isinstance(v, _PymgridSpace):
                     transformed[k] = v[space_key]
                 else:
                     transformed[k] = self._transform_builtins(v, normalized=normalized)
@@ -65,7 +65,7 @@ class _PymgridDict(Dict):
         elif isinstance(d, list):
             transformed = []
             for v in d:
-                if isinstance(v, Space):
+                if isinstance(v, _PymgridSpace):
                     transformed.append(v[space_key])
                 else:
                     transformed.append(self._transform_builtins(v, normalized=normalized))
