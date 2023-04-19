@@ -201,7 +201,10 @@ class ModuleSpace(_PymgridSpace):
                                  shape=shape,
                                  dtype=dtype)
 
-        self._normalized = Box(low=0, high=1, shape=self._unnormalized.shape, dtype=dtype)
+        self._normalized = Box(low=normalized_bounds[0],
+                               high=normalized_bounds[1],
+                               shape=self._unnormalized.shape,
+                               dtype=dtype)
 
         try:
             super().__init__(shape=self._unnormalized.shape, dtype=self._unnormalized.dtype, seed=seed)
