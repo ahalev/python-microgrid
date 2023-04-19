@@ -725,10 +725,10 @@ class BaseMicrogridModule(yaml.YAMLObject):
                 raise
             low, high = 0, 1
 
-        if low.is_integer():
+        if isinstance(low, float) and low.is_integer():
             low = int(low)
 
-        if high.is_integer():
+        if isinstance(high, float) and high.is_integer():
             high = int(high)
 
         return low, high
