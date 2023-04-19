@@ -221,12 +221,12 @@ class ModuleSpace(_PymgridSpace):
         self._norm_spread[self._norm_spread == 0] = 1
 
     def normalize(self, val):
-        low, high = self._unnormalized.low, self._unnormalized.high
+        un_low, un_high = self._unnormalized.low, self._unnormalized.high
 
         self._shape_check(val, 'normalize')
-        self._bounds_check(val, low, high)
+        self._bounds_check(val, un_low, un_high)
 
-        normalized = (val - low) / self._spread
+        normalized = self._normalized.low + (self._norm_spread / self._unnorm_spread) * (val - un_low)
 
         try:
             return normalized.item()
@@ -234,12 +234,12 @@ class ModuleSpace(_PymgridSpace):
             return normalized
 
     def denormalize(self, val):
-        low, high = self._unnormalized.low, self._unnormalized.high
+        norm_low, norm_high = self._normalized.low, self._normalized.high
 
         self._shape_check(val, 'denormalize')
-        self._bounds_check(val, 0, 1)
+        self._bounds_check(val, norm_low, norm_high)
 
-        denormalized = low + self._spread * val
+        denormalized = self._unnormalized.low + (self._unnorm_spread / self._norm_spread) * (val - norm_low)
 
         try:
             return denormalized.item()
