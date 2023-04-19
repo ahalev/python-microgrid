@@ -700,6 +700,30 @@ class BaseMicrogridModule(yaml.YAMLObject):
         return self._observation_space
 
     @property
+    def normalized_action_bounds(self):
+        """
+        Bounds that actions are normalized to in the action space.
+
+        This property is necessary for serialization.
+
+        :meta private:
+
+        Returns
+        -------
+        normalized_action_bounds : tuple
+            Normalized bounds
+        """
+        try:
+            low = np.unique(self._action_space.normalized.low).item()
+            high = np.unique(self._action_space.normalized.high).item()
+        except ValueError:
+            if not self._action_space.shape == (0, ):
+                raise
+            low, high = 0, 1
+
+        return low, high
+
+    @property
     def is_source(self):
         """
         Whether the module is a source.
