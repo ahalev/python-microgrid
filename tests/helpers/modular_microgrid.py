@@ -16,23 +16,34 @@ def get_modular_microgrid(remove_modules=(),
                           additional_modules=None,
                           add_unbalanced_module=True,
                           timeseries_length=100,
-                          modules_only=False):
+                          modules_only=False,
+                          normalized_action_bounds=(0, 1)):
 
     modules = dict(
-        genset=GensetModule(running_min_production=10, running_max_production=50, genset_cost=0.5),
+        genset=GensetModule(running_min_production=10,
+                            running_max_production=50,
+                            genset_cost=0.5,
+                            normalized_action_bounds=normalized_action_bounds),
 
         battery=BatteryModule(min_capacity=0,
                               max_capacity=100,
                               max_charge=50,
                               max_discharge=50,
                               efficiency=1.0,
-                              init_soc=0.5),
+                              init_soc=0.5,
+                              normalized_action_bounds=normalized_action_bounds),
 
-        renewable=RenewableModule(time_series=50*np.ones(timeseries_length)),
+        renewable=RenewableModule(time_series=50*np.ones(timeseries_length),
+                                  normalized_action_bounds=normalized_action_bounds),
 
-        load=LoadModule(time_series=60*np.ones(timeseries_length)),
+        load=LoadModule(time_series=60*np.ones(timeseries_length),
+                        normalized_action_bounds=normalized_action_bounds),
 
-        grid=GridModule(max_import=100, max_export=0, time_series=np.ones((timeseries_length, 3)), raise_errors=True)
+        grid=GridModule(max_import=100,
+                        max_export=0,
+                        time_series=np.ones((timeseries_length, 3)),
+                        normalized_action_bounds=normalized_action_bounds,
+                        raise_errors=True)
         )
 
     if retain_only is not None:
