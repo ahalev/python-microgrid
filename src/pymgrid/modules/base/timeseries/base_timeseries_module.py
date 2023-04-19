@@ -28,6 +28,7 @@ class BaseTimeSeriesMicrogridModule(BaseMicrogridModule):
                  forecaster_relative_noise=False,
                  initial_step=0,
                  final_step=-1,
+                 normalized_action_bounds=(0, 1),
                  provided_energy_name='provided_energy',
                  absorbed_energy_name='absorbed_energy',
                  normalize_pos=...):
@@ -50,6 +51,7 @@ class BaseTimeSeriesMicrogridModule(BaseMicrogridModule):
 
         super().__init__(raise_errors,
                          initial_step=initial_step,
+                         normalized_action_bounds=normalized_action_bounds,
                          provided_energy_name=provided_energy_name,
                          absorbed_energy_name=absorbed_energy_name)
 

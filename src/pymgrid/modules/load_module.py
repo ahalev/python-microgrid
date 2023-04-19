@@ -63,6 +63,7 @@ class LoadModule(BaseTimeSeriesMicrogridModule):
                  forecaster_relative_noise=False,
                  initial_step=0,
                  final_step=-1,
+                 normalized_action_bounds=(0, 1),
                  raise_errors=False):
         super().__init__(
             time_series,
@@ -73,6 +74,7 @@ class LoadModule(BaseTimeSeriesMicrogridModule):
             forecaster_relative_noise=forecaster_relative_noise,
             initial_step=initial_step,
             final_step=final_step,
+            normalized_action_bounds=normalized_action_bounds,
             provided_energy_name=None,
             absorbed_energy_name='load_met'
         )

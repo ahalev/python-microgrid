@@ -81,6 +81,7 @@ class GridModule(BaseTimeSeriesMicrogridModule):
                  initial_step=0,
                  final_step=-1,
                  cost_per_unit_co2=0.0,
+                 normalized_action_bounds=(0, 1),
                  raise_errors=False):
 
         time_series = self._check_params(max_import, max_export, time_series)
@@ -96,6 +97,7 @@ class GridModule(BaseTimeSeriesMicrogridModule):
             forecaster_relative_noise=forecaster_relative_noise,
             initial_step=initial_step,
             final_step=final_step,
+            normalized_action_bounds=normalized_action_bounds,
             provided_energy_name='grid_import',
             absorbed_energy_name='grid_export'
         )
