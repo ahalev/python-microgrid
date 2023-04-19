@@ -181,7 +181,17 @@ class _PymgridSpace(Space):
 
 
 class ModuleSpace(_PymgridSpace):
-    def __init__(self, unnormalized_low, unnormalized_high, shape=None, dtype=np.float64, seed=None):
+    _unnormalized: Box
+    _normalized: Box
+    _spread: np.ndarray
+
+    def __init__(self,
+                 unnormalized_low,
+                 unnormalized_high,
+                 normalized_bounds=(0, 1),
+                 shape=None,
+                 dtype=np.float64,
+                 seed=None):
 
         low = np.float64(unnormalized_low) if np.isscalar(unnormalized_low) else unnormalized_low.astype(np.float64)
         high = np.float64(unnormalized_high) if np.isscalar(unnormalized_high) else unnormalized_high.astype(np.float64)
