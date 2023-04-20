@@ -14,7 +14,7 @@ class TestModuleSpace(TestCase):
 
     def test_normalize(self):
         unnorm_low = np.zeros(2)
-        unnorm_high = 2 * np.arange(2)
+        unnorm_high = np.array([1, 2])
 
         space = self.get_space(unnorm_low, unnorm_high)
 
@@ -28,7 +28,7 @@ class TestModuleSpace(TestCase):
 
     def test_denormalize(self):
         unnorm_low = np.zeros(2)
-        unnorm_high = 2 * np.arange(2)
+        unnorm_high = np.array([1, 2])
 
         space = self.get_space(unnorm_low, unnorm_high)
 
@@ -42,7 +42,7 @@ class TestModuleSpace(TestCase):
 
     def test_normalize_different_normalized_bounds(self):
         unnorm_low = np.zeros(2)
-        unnorm_high = 2 * np.arange(2)
+        unnorm_high = np.array([1, 2])
         normalized_bounds = [-3, 2]
 
         space = self.get_space(unnorm_low, unnorm_high, normalized_bounds=normalized_bounds)

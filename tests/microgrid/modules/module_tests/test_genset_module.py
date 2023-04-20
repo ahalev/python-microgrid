@@ -40,13 +40,13 @@ class TestGensetModule(TestCase):
         genset, _ = self.get_genset()
         action = np.array([-0.5, 0.5])
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             genset.step(action)
 
     def test_step_out_of_normalized_range_production(self):
         genset, _ = self.get_genset()
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             action = np.array([-0.5, 2])
             genset.step(action)
 
@@ -137,6 +137,7 @@ class TestGensetModule(TestCase):
 
     def test_step_genset_production_request_out_of_range_no_error_raise(self):
         genset, params = self.get_genset(raise_errors=False)
+        genset.action_space.verbose = True
 
         requested_possible_warn =  [(params['running_min_production']*np.random.rand(), params['running_min_production'], False),
                                (params['running_max_production'] * (1+np.random.rand()), params['running_max_production'], True)]
