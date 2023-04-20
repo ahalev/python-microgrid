@@ -157,7 +157,7 @@ def linkcode_resolve(domain, info):
 
     fn = os.path.relpath(fn, start=os.path.dirname(pymgrid.__file__))
 
-    return f'https://github.com/Total-RD/pymgrid/tree/v{pymgrid.__version__}/src/pymgrid/{fn}{linespec}'
+    return f'https://github.com/ahalev/python-microgrid/tree/v{pymgrid.__version__}/src/pymgrid/{fn}{linespec}'
 
 
 intersphinx_mapping = {
