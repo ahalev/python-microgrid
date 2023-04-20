@@ -218,6 +218,22 @@ class OracleForecaster(Forecaster):
 
 
 class GaussianNoiseForecaster(Forecaster):
+    """
+    Forecaster that adds Gaussian noise to true future values.
+    """
+    increase_uncertainty: bool
+    """
+    Whether uncertainty should increase for points farther in the future.
+    
+    If True, uncertainty increases logarithmically in the number of steps ahead.
+    """
+    relative_noise: bool
+    """
+    Whether the Gaussian noise should be relative to the scale of the time series.
+    
+    If True, the noise_std will be computed as `input_noise_std * time_series.mean()`.
+    If False, the noise_std will be equal to `input_noise_std`.
+    """
     def __init__(self,
                  noise_std,
                  observation_space,
