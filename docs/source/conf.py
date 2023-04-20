@@ -59,12 +59,12 @@ html_theme_options = {
     "icon_links": [
             {
                 "name": "GitHub",
-                "url": "https://github.com/Total-RD/pymgrid",
+                "url": "https://github.com/ahalev/python-microgrid",
                 "icon": "fa-brands fa-github",
             },
             {
                 "name": "PyPI",
-                "url": "https://pypi.org/project/pymgrid/",
+                "url": "https://pypi.org/project/python-microgrid/",
                 "icon": "fa-solid fa-box",
             }
     ]
