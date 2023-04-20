@@ -43,6 +43,10 @@ class GensetModule(BaseMicrogridModule):
     init_start_up : bool, default True
         Whether the genset is running upon reset.
 
+    normalized_action_bounds : tuple of int or float, default (0, 1).
+        Bounds of normalized actions.
+        Change to (-1, 1) for e.g. an RL policy with a Tanh output activation.
+
     raise_errors : bool, default False
         Whether to raise errors if bounds are exceeded in an action.
         If False, actions are clipped to the limit possible.
