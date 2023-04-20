@@ -683,10 +683,38 @@ class BaseMicrogridModule(yaml.YAMLObject):
 
     @property
     def production_marginal_cost(self):
+        """
+        Expected marginal cost of energy production.
+
+        Cost of producing one unit of energy.
+
+        .. warning::
+            This is a scalar value, and thus will be inaccurate for modules that do not have scalar costs.
+            It is thus only an expectation.
+
+        Returns
+        -------
+        production_marginal_cost : float
+
+        """
         return 0.0
 
     @property
     def absorption_marginal_cost(self):
+        """
+        Expected marginal cost of energy absorption.
+
+        Cost of absorbing one unit of energy.
+
+        .. warning::
+            This is a scalar value, and thus will be inaccurate for modules that do not have scalar costs.
+            It is thus only an expectation.
+
+        Returns
+        -------
+        absorption_marginal_cost : float
+
+        """
         return 0.0
 
     @property
