@@ -189,9 +189,14 @@ class ModuleSpace(_PymgridSpace):
                  unnormalized_low,
                  unnormalized_high,
                  normalized_bounds=(0, 1),
+                 clip=True,
                  shape=None,
                  dtype=np.float64,
-                 seed=None):
+                 seed=None,
+                 verbose=False):
+
+        self.clip = clip
+        self.verbose = verbose
 
         low = np.float64(unnormalized_low) if np.isscalar(unnormalized_low) else unnormalized_low.astype(np.float64)
         high = np.float64(unnormalized_high) if np.isscalar(unnormalized_high) else unnormalized_high.astype(np.float64)
@@ -224,7 +229,7 @@ class ModuleSpace(_PymgridSpace):
         un_low, un_high = self._unnormalized.low, self._unnormalized.high
 
         self._shape_check(val, 'normalize')
-        self._bounds_check(val, un_low, un_high)
+        val = self._bounds_check(val, un_low, un_high)
 
         normalized = self._normalized.low + (self._norm_spread / self._unnorm_spread) * (val - un_low)
 
@@ -237,7 +242,7 @@ class ModuleSpace(_PymgridSpace):
         norm_low, norm_high = self._normalized.low, self._normalized.high
 
         self._shape_check(val, 'denormalize')
-        self._bounds_check(val, norm_low, norm_high)
+        val = self._bounds_check(val, norm_low, norm_high)
 
         denormalized = self._unnormalized.low + (self._unnorm_spread / self._norm_spread) * (val - norm_low)
 
@@ -247,12 +252,18 @@ class ModuleSpace(_PymgridSpace):
             return denormalized
 
     def _bounds_check(self, val, low, high):
+        clipped = np.clip(val, low, high)
         array_like_check = hasattr(val, '__len__') and \
                            not (all((low <= val) & (val <= high)) or np.allclose(val, low) or np.allclose(val, high))
         scalar_check = not hasattr(val, '__len__') and not low <= val <= high
 
-        if array_like_check or scalar_check:
+        if self.verbose or not self.clip and (clipped != val).any():
             warnings.warn(f'Value {val} resides out of expected bounds of value to be normalized: [{low}, {high}].')
+
+        if self.clip:
+            return clipped
+
+        return val
 
 
 class MicrogridSpace(_PymgridSpace):
