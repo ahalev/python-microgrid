@@ -41,7 +41,11 @@ class LoadModule(BaseTimeSeriesMicrogridModule):
         Number of steps in the future to forecast. If forecaster is None, ignored and 0 is returned.
 
     forecaster_increase_uncertainty : bool, default False
-        Whether to increase uncertainty for farther-out dates if using a GaussianNoiseForecaster. Ignored otherwise..
+        Whether to increase uncertainty for farther-out dates if using a GaussianNoiseForecaster. Ignored otherwise.
+
+    normalized_action_bounds : tuple of int or float, default (0, 1).
+        Bounds of normalized actions.
+        Change to (-1, 1) for e.g. an RL policy with a Tanh output activation.
 
     raise_errors : bool, default False
         Whether to raise errors if bounds are exceeded in an action.
