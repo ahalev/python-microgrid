@@ -145,10 +145,16 @@ class GensetModule(BaseMicrogridModule):
             this module provided to or absorbed from the microgrid.
 
         """
-        goal_status = action[0]
+        if normalized:
+            denormalized = self._action_space.denormalize(action)
+        else:
+            denormalized = action
+
+        goal_status = denormalized[0]
+
         assert 0 <= goal_status <= 1
         self.update_status(goal_status)
-        return super().step(action, normalized=normalized)
+        return super().step(denormalized, normalized=False)
 
     def get_co2(self, production):
         """
