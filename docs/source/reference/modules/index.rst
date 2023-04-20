@@ -42,3 +42,12 @@ A module that cleans up after all the other modules are deployed.
     :toctree: ../api/modules/
 
     UnbalancedEnergyModule
+
+
+Module Functions
+----------------
+
+.. toctree::
+   :maxdepth: 1
+
+   battery_transition_models/index
