@@ -60,10 +60,3 @@ Various battery transition models.
     BatteryTransitionModel
     BiasedTransitionModel
     DecayTransitionModel
-=======
-----------------
-
-.. toctree::
-   :maxdepth: 1
-
-   battery_transition_models/index
