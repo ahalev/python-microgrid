@@ -45,9 +45,18 @@ A module that cleans up after all the other modules are deployed.
 
 
 Module Functions
-----------------
+================
 
-.. toctree::
-   :maxdepth: 1
+Battery Transition Models
+-------------------------
 
-   battery_transition_models/index
+Various battery transition models.
+
+.. currentmodule:: pymgrid.modules.battery.transition_models
+
+.. autosummary::
+    :toctree: ../api/battery_transition_models/
+
+    BatteryTransitionModel
+    BiasedTransitionModel
+    DecayTransitionModel
