@@ -43,7 +43,7 @@ class RuleBasedControl(PriorityListAlgo):
 
         return priority_list
 
-    def _get_action(self):
+    def get_action(self):
         """
         Given the priority list, define an action.
         """
@@ -82,7 +82,7 @@ class RuleBasedControl(PriorityListAlgo):
         self.reset()
 
         for _ in tqdm(range(self._get_num_iter(max_steps)), desc="RBC Progress", disable=(not verbose)):
-            action = self._get_action()
+            action = self.get_action()
             _, _, done, _ = self._microgrid.run(action, normalized=False)
             if done:
                 break
