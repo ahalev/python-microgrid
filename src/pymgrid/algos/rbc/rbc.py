@@ -94,7 +94,6 @@ class RuleBasedControl(PriorityListAlgo):
         """
         return self._populate_action(self._priority_list)
 
-
     def get_empty_action(self):
         """
         :meta private:
