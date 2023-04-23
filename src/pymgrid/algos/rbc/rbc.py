@@ -43,12 +43,6 @@ class RuleBasedControl(PriorityListAlgo):
 
         return priority_list
 
-    def get_action(self):
-        """
-        Given the priority list, define an action.
-        """
-        return self._populate_action(self._priority_list)
-
     def reset(self):
         """
         Reset the underlying microgrid.
@@ -93,6 +87,13 @@ class RuleBasedControl(PriorityListAlgo):
         if max_steps is not None:
             return max_steps
         return self.microgrid.final_step - self.microgrid.initial_step
+
+    def get_action(self):
+        """
+        Given the priority list, define an action.
+        """
+        return self._populate_action(self._priority_list)
+
 
     def get_empty_action(self):
         """
