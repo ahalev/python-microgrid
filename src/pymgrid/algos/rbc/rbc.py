@@ -52,13 +52,16 @@ class RuleBasedControl(PriorityListAlgo):
         """
         Reset the underlying microgrid.
 
+        If already reset (e.g. current step is initial step), do nothing.
+
         Returns
         -------
         obs : dict[str, list[float]]
             Observations from resetting the modules as well as the flushed balance log.
 
         """
-        return self._microgrid.reset()
+        if self.microgrid.current_step != self.microgrid.initial_step:
+            self.microgrid.reset()
 
     def run(self, max_steps=None, verbose=False):
         """
