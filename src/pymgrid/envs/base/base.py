@@ -178,6 +178,8 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def reset(self):
         obs = super().reset()
+        obs.pop('balance')
+        obs.pop('other')
         self.reset_callback()
         return self._get_obs(obs)
 
