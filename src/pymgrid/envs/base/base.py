@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from gym import Env
@@ -251,7 +252,7 @@ class BaseMicrogridEnv(Microgrid, Env):
                 obs = obs.to_frame().unstack(level=1).T.droplevel(level=1, axis=1).to_dict(orient='list')
 
         elif self._flat_spaces:
-            obs = flatten(self._nested_observation_space, obs)
+            obs = self.flatten_obs(obs)
 
         return obs
 
@@ -267,6 +268,10 @@ class BaseMicrogridEnv(Microgrid, Env):
     def render(self, mode="human"):
         """:meta private:"""
         raise RuntimeError('rendering is not possible in Microgrid environments.')
+
+    @staticmethod
+    def flatten_obs(obs):
+        return np.hstack(list(obs.values())).squeeze()
 
     @property
     def unwrapped(self):
