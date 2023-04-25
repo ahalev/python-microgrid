@@ -194,7 +194,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         Parameters
         ----------
-        action : dict[str, list[float]]
+        action : int or np.ndarray
             An action provided by the agent.
 
         normalized : bool, default True
