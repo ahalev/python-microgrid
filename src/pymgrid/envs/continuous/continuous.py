@@ -14,6 +14,18 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
         self._nested_action_space = self._get_nested_action_space()
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
-    def convert_action(self, action):
-        return unflatten(self._nested_action_space, action)
+    def convert_action(self, action, to_microgrid=True, normalize=False):
+        if to_microgrid:
+            converted = unflatten(self._nested_action_space, action)
+            if normalize:
+                converted = self.microgrid_action_space.normalize(converted)
+
+            return converted
+
+        if normalize:
+            action = self.microgrid_action_space.normalize(action)
+
+        assert action in self._nested_action_space
+
+        return flatten(self._nested_action_space, action)
 
