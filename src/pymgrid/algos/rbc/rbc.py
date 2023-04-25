@@ -1,6 +1,7 @@
 from copy import deepcopy
 from tqdm import tqdm
 
+from pymgrid import Microgrid
 from pymgrid.algos.priority_list import PriorityListAlgo
 
 
@@ -23,9 +24,13 @@ class RuleBasedControl(PriorityListAlgo):
         cost to the highest.
 
     """
+
+    microgrid : Microgrid
+    'Microgrid on which to run rule-based control.'
+
     def __init__(self, microgrid, priority_list=None, remove_redundant_gensets=True):
         super().__init__()
-        self._microgrid = microgrid
+        self.microgrid = microgrid
         self._priority_list = self._get_priority_list(priority_list, remove_redundant_gensets)
 
     def _get_priority_list(self, priority_list, remove_redundant_gensets):
@@ -77,11 +82,11 @@ class RuleBasedControl(PriorityListAlgo):
 
         for _ in tqdm(range(self._get_num_iter(max_steps)), desc="RBC Progress", disable=(not verbose)):
             action = self.get_action()
-            _, _, done, _ = self._microgrid.run(action, normalized=False)
+            _, _, done, _ = self.microgrid.run(action, normalized=False)
             if done:
                 break
 
-        return self._microgrid.get_log(as_frame=True)
+        return self.microgrid.get_log(as_frame=True)
 
     def _get_num_iter(self, max_steps):
         if max_steps is not None:
@@ -98,35 +103,22 @@ class RuleBasedControl(PriorityListAlgo):
         """
         :meta private:
         """
-        return self._microgrid.get_empty_action()
-
-    @property
-    def microgrid(self):
-        """
-        View of the microgrid.
-
-        Returns
-        -------
-        microgrid : :class:`pymgrid.Microgrid`
-            The microgrid that RBC is being run on.
-
-        """
-        return self._microgrid
+        return self.microgrid.get_empty_action()
 
     @property
     def fixed(self):
         """:meta private:"""
-        return self._microgrid.fixed
+        return self.microgrid.fixed
 
     @property
     def flex(self):
         """:meta private:"""
-        return self._microgrid.flex
+        return self.microgrid.flex
 
     @property
     def modules(self):
         """:meta private:"""
-        return self._microgrid.modules
+        return self.microgrid.modules
 
     @property
     def priority_list(self):
