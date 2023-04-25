@@ -714,7 +714,7 @@ class Microgrid(yaml.YAMLObject):
         """
         return self._modules
 
-    def state_dict(self, normalized=False):
+    def state_dict(self, normalized=False, as_run_output=False):
         """
         State of the microgrid as a dict.
 
@@ -725,14 +725,24 @@ class Microgrid(yaml.YAMLObject):
         normalized : bool, default False
             Whether to return a dict of normalized values.
 
+        as_run_output : bool, default False
+            Whether to return output in the same format as the output of :meth:`Microgrid.run`.
+            Inner values are numpy arrays and not dict in this case.
+
+
         Returns
         -------
-        state_dict : dict[str, list[dict]]
+        state_dict : dict[str, list[dict]] or dict[str[list[np.ndarray]]]
             State of the microgrid as a nested dict.
 
         """
+        def as_run_output_f(state_dict):
+            if as_run_output:
+                return np.array(list(state_dict.values()))
+            return state_dict
+
         return {name: [
-            module.state_dict(normalized=normalized) for module in modules
+            as_run_output_f(module.state_dict(normalized=normalized)) for module in modules
         ] for name, modules in self._modules.iterdict()}
 
     @property
