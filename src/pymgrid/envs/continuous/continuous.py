@@ -1,4 +1,4 @@
-from gym.spaces import Dict, Tuple, flatten_space, unflatten
+from gym.spaces import Dict, Tuple, flatten_space, flatten, unflatten
 
 from pymgrid.envs.base import BaseMicrogridEnv
 
