@@ -495,6 +495,21 @@ class ModelPredictiveControl:
         if np.isnan(self.costs.value).any():
             raise RuntimeError('There are still nan values in self.costs.value, something is wrong')
 
+    def reset(self):
+        """
+        Reset the underlying microgrid.
+
+        If already reset (e.g. current step is initial step), do nothing.
+
+        Returns
+        -------
+        obs : dict[str, list[float]]
+            Observations from resetting the modules as well as the flushed balance log.
+
+        """
+        if self.microgrid.current_step != self.microgrid.initial_step:
+            self.microgrid.reset()
+
     def run(self, max_steps=None, verbose=False):
         """
         Run the model prediction control algorithm.
