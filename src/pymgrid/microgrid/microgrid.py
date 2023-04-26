@@ -482,7 +482,8 @@ class Microgrid(yaml.YAMLObject):
 
         col_names = ['module_name', 'module_number', 'field']
 
-        df = pd.DataFrame(_log_dict, index=pd.RangeIndex(start=self.initial_step, stop=self.current_step))
+        initial_step = self._modules.get_attrs('initial_step', unique=True).item()
+        df = pd.DataFrame(_log_dict, index=pd.RangeIndex(start=initial_step, stop=self.current_step))
         df.columns = pd.MultiIndex.from_tuples(df.columns.to_list(), names=col_names)
 
         if drop_forecasts:
