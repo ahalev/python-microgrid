@@ -254,7 +254,7 @@ class BaseMicrogridEnv(Microgrid, Env):
                 obs = obs.to_frame().unstack(level=1).T.droplevel(level=1, axis=1).to_dict(orient='list')
 
         elif self._flat_spaces:
-            obs = self.flatten_obs(obs)
+            obs = self.flatten_obs(self._nested_observation_space, obs)
 
         return obs
 
@@ -272,8 +272,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         raise RuntimeError('rendering is not possible in Microgrid environments.')
 
     @staticmethod
-    def flatten_obs(obs):
-        return np.hstack(list(obs.values())).squeeze()
+    def flatten_obs(observation_space, obs):
+        return np.concatenate([flatten(observation_space[k], v) for k, v in obs.items()])
 
     @property
     def unwrapped(self):
