@@ -746,8 +746,6 @@ class ModelPredictiveControl:
                       cost_co2,
                       grid_co2,
                       genset_co2,
-                      iteration=None,
-                      total_iterations=None,
                       return_steps=0,
                        verbose=False):
         """
