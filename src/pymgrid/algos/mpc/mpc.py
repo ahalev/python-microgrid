@@ -553,13 +553,9 @@ class ModelPredictiveControl:
     def _run_mpc_on_modular(self, forecast_steps=None, verbose=False):
 
         num_iter = self._get_num_iter(forecast_steps)
-        self.microgrid.reset()
 
-        for i in tqdm(range(num_iter), desc="MPC Progress", disable=(not verbose)):
-            control = self._set_and_solve(*self._get_modular_state_values(),
-                                         iteration=i,
-                                         total_iterations=num_iter,
-                                          verbose=verbose>1)
+        for _ in tqdm(range(num_iter), desc="MPC Progress", disable=(not verbose)):
+            control = self.get_action()
 
             _, _, done, _ = self.microgrid.run(control, normalized=False)
 
@@ -568,6 +564,8 @@ class ModelPredictiveControl:
 
         return self.microgrid.get_log()
 
+    def get_action(self, verbose=0):
+        return self._set_and_solve(*self._get_modular_state_values(), verbose=verbose > 1)
 
     def _get_num_iter(self, forecast_steps=None):
         if forecast_steps is not None:
