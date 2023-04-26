@@ -906,9 +906,9 @@ class ModelPredictiveControl:
                     f"Flattening to the difference, leading to a {'import' if grid_diff > 0 else 'export'} of {grid_diff}.")
 
         if "grid" in self.microgrid_module_names.keys():
-            control.update({self.microgrid_module_names["grid"]: grid_diff})
+            control[self.microgrid_module_names["grid"]] = [grid_diff]
 
-        control.update({self.microgrid_module_names["battery"]: battery_diff})
+        control[self.microgrid_module_names["battery"]] = [battery_diff]
 
         return control
 
