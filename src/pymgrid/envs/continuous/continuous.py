@@ -35,7 +35,9 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
                 assert _action in self._nested_action_space
             except AssertionError:
                 clipped = self.microgrid_action_space.clip(_action, normalized=normalize)
-                if np.isclose(clipped, _action):
+
+                if np.isclose(flatten(self._nested_action_space, clipped),
+                              flatten(self._nested_action_space, _action)).all():
                     _action = clipped
                 else:
                     raise
