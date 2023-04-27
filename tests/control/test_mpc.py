@@ -53,7 +53,7 @@ class TestMPC(TestCase):
                             mpc_output[("battery", 0, "discharge_amount")].values,
                          [10.] * mpc_output.shape[0])
 
-    def test_run_twice_with_load_pv_battery_genset(self):
+    def test_run_twice_with_load_pv_battery_genset_without_reset(self):
         from pymgrid.modules import RenewableModule, LoadModule
 
         max_steps = 10
@@ -75,9 +75,40 @@ class TestMPC(TestCase):
 
         mpc_output = mpc.run(max_steps=max_steps)
 
+        self.assertEqual(mpc_output.shape[0], 2 * max_steps)
+        self.assertEqual(mpc_output[("load", 0, "load_met")].values, [60.] * mpc_output.shape[0])
+        self.assertEqual(mpc_output[("genset", 0, "genset_production")].values +
+                            mpc_output[("battery", 0, "discharge_amount")].values,
+                         [10.] * mpc_output.shape[0])
+
+    def test_run_twice_with_load_pv_battery_genset_with_reset(self):
+        from pymgrid.modules import RenewableModule, LoadModule
+
+        max_steps = 10
+        pv_const = 50
+        load_const = 60
+        pv = RenewableModule(time_series=pv_const*np.ones(100))
+        load = LoadModule(time_series=load_const*np.ones(100))
+
+        microgrid = get_modular_microgrid(remove_modules=["renewable", "load", "grid"], additional_modules=[pv, load])
+
+        mpc = ModelPredictiveControl(microgrid)
+        mpc_output = mpc.run(max_steps=max_steps)
+
         self.assertEqual(mpc_output.shape[0], max_steps)
         self.assertEqual(mpc_output[("load", 0, "load_met")].values, [60.] * mpc_output.shape[0])
-        self.assertEqual(mpc_output[("genset", 0, "genset_production")].values, [10.] * mpc_output.shape[0])
+        self.assertEqual(mpc_output[("genset", 0, "genset_production")].values +
+                            mpc_output[("battery", 0, "discharge_amount")].values,
+                         [10.] * mpc_output.shape[0])
+
+        mpc.reset()
+        mpc_output = mpc.run(max_steps=max_steps)
+
+        self.assertEqual(mpc_output.shape[0], max_steps)
+        self.assertEqual(mpc_output[("load", 0, "load_met")].values, [60.] * mpc_output.shape[0])
+        self.assertEqual(mpc_output[("genset", 0, "genset_production")].values +
+                            mpc_output[("battery", 0, "discharge_amount")].values,
+                         [10.] * mpc_output.shape[0])
 
     def test_run_with_load_pv_battery_grid_different_names(self):
         from pymgrid.modules import RenewableModule, LoadModule
