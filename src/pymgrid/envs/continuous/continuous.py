@@ -23,9 +23,18 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
             return converted
 
         if normalize:
-            action = self.microgrid_action_space.normalize(action)
+            _action = self.microgrid_action_space.normalize(action)
+        else:
+            _action = action
 
-        assert action in self._nested_action_space
+        try:
+            assert _action in self._nested_action_space
+        except AssertionError:
+            clipped = self.microgrid_action_space.clip(_action, normalized=normalize)
+            if np.isclose(clipped, _action):
+                _action = clipped
+            else:
+                raise
 
-        return flatten(self._nested_action_space, action)
+        return flatten(self._nested_action_space, _action)
 
