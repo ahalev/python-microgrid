@@ -205,7 +205,7 @@ class _PymgridSpace(Space):
         if type(self) != type(other):
             return NotImplemented
 
-        return self.unnormalized == other.unnormalized
+        return self.unnormalized == other.unnormalized and self.normalized == other.normalized
 
 
 class ModuleSpace(_PymgridSpace):
