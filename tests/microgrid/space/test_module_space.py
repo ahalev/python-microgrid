@@ -69,3 +69,57 @@ class TestModuleSpace(TestCase):
             with self.subTest(val_to_denormalize=val_to_denormalize, expected_denormalized_val=expected_denormalized_val):
                 denormalized = space.denormalize(val_to_denormalize)
                 self.assertEqual(denormalized, expected_denormalized_val)
+
+    def test_clip_no_clip_normalized(self):
+        unnorm_low = np.zeros(2)
+        unnorm_high = 2 * np.arange(2)
+        normalized_bounds = [0, 2]
+
+        space = self.get_space(unnorm_low, unnorm_high, normalized_bounds=normalized_bounds)
+
+        val = (normalized_bounds[1] - normalized_bounds[0]) * np.random.rand(2) + normalized_bounds[0]
+
+        self.assertIn(val, space.normalized)
+        self.assertEqual(val, space.clip(val, normalized=True))
+
+    def test_clip_yes_clip_normalized(self):
+        unnorm_low = np.zeros(2)
+        unnorm_high = 2 * np.arange(2)
+        normalized_bounds = [0, 2]
+
+        space = self.get_space(unnorm_low, unnorm_high, normalized_bounds=normalized_bounds)
+
+        val = (normalized_bounds[1] - normalized_bounds[0]) * np.random.rand(2) + normalized_bounds[1]
+
+        clipped = space.clip(val, normalized=True)
+
+        self.assertNotIn(val, space.normalized)
+        self.assertNotEqual(val, clipped)
+        self.assertEqual(clipped, space.normalized.high)
+
+    def test_clip_no_clip_unnormalized(self):
+        unnorm_low = np.zeros(2)
+        unnorm_high = 2 * np.arange(2)
+        normalized_bounds = [0, 2]
+
+        space = self.get_space(unnorm_low, unnorm_high, normalized_bounds=normalized_bounds)
+
+        val = (unnorm_high - unnorm_low) * np.random.rand(2) + unnorm_low
+
+        self.assertIn(val, space.unnormalized)
+        self.assertEqual(val, space.clip(val, normalized=False))
+
+    def test_clip_yes_clip_unnormalized(self):
+        unnorm_low = np.zeros(2)
+        unnorm_high = 2 * np.arange(2)
+        normalized_bounds = [0, 2]
+
+        space = self.get_space(unnorm_low, unnorm_high, normalized_bounds=normalized_bounds)
+
+        val = (unnorm_high - unnorm_low) * np.random.rand(2) + unnorm_high
+
+        clipped = space.clip(val, normalized=False)
+
+        self.assertNotIn(val, space.unnormalized)
+        self.assertNotEqual(val, clipped)
+        self.assertEqual(clipped, space.unnormalized.high)
