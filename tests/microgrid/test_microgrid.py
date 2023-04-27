@@ -95,7 +95,6 @@ class TestMicrogrid(TestCase):
                 for k, v in expected_normalized_action.items():
                     self.assertEqual(v, normalized[k])
 
-
     def test_action_space_denormalize_different_bounds(self):
         microgrid = get_modular_microgrid(normalized_action_bounds=[-2, 3])
 
