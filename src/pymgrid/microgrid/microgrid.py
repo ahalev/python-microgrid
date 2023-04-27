@@ -1018,6 +1018,33 @@ class Microgrid(yaml.YAMLObject):
             not x.startswith('_') and not callable(getattr(self._modules, x)) and x in self._modules
         }
 
+    def verbose_eq(self, other):
+        if self == other:
+            print('Objects are equal.')
+            return
+
+        enum = 1
+
+        def print_reason(reason, enum):
+            print(f"\t{enum}) {reason}")
+            enum += 1
+            return enum
+
+        print('Objects are not equal due to: ')
+
+        if type(self) != type(other):
+            enum = print_reason(f'type(self)={type(self)} != type(other)={type(other)}"', enum)
+
+        for attr in ('_balance_logger', 'trajectory_func', *self._modules.names()):
+            self_attr = getattr(self, attr)
+            other_attr = getattr(other, attr)
+            if self_attr != other_attr:
+                enum = print_reason(f'self.{attr} != other.{attr}', enum)
+                try:
+                    getattr(self_attr, 'verbose_eq')(other_attr)
+                except AttributeError:
+                    pass
+
     def __dir__(self):
         rv = set(super().__dir__())
         rv = rv | self._dir_additions()
