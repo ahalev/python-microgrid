@@ -7,6 +7,7 @@ from pymgrid.envs.base import BaseMicrogridEnv
 
 class ContinuousMicrogridEnv(BaseMicrogridEnv):
     _nested_action_space = None
+    check_actions = True
 
     def _get_nested_action_space(self):
         return Dict({name: Tuple([module.action_space['normalized'] for module in modules_list])
@@ -29,14 +30,15 @@ class ContinuousMicrogridEnv(BaseMicrogridEnv):
         else:
             _action = action
 
-        try:
-            assert _action in self._nested_action_space
-        except AssertionError:
-            clipped = self.microgrid_action_space.clip(_action, normalized=normalize)
-            if np.isclose(clipped, _action):
-                _action = clipped
-            else:
-                raise
+        if self.check_actions:
+            try:
+                assert _action in self._nested_action_space
+            except AssertionError:
+                clipped = self.microgrid_action_space.clip(_action, normalized=normalize)
+                if np.isclose(clipped, _action):
+                    _action = clipped
+                else:
+                    raise
 
         return flatten(self._nested_action_space, _action)
 
