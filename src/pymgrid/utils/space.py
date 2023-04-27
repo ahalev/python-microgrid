@@ -3,6 +3,7 @@ import numpy as np
 import warnings
 
 from abc import abstractmethod
+from collections import namedtuple
 from gym.spaces import Box, Dict, Space, Tuple
 from typing import Union
 
@@ -170,6 +171,33 @@ class _PymgridSpace(Space):
 
         raise KeyError(item)
 
+    def clip(self, val, *, low=None, high=None, normalized=None, space=None):
+        if low is not None and high is not None:
+            Space = namedtuple('Space', ['low', 'high'])
+            return self.inner_clip(val, Space(low=low, high=high))
+        elif low is None and high is None:
+            pass
+        else:
+            raise ValueError("One of 'low' or 'high' is None. Both should be or neither should be.")
+
+        if space is None:
+            if normalized is None:
+                raise ValueError("No values to define low and high were passed!"
+                                 "Must pass 'low' and 'high', or 'normalized', or 'space'.")
+            elif normalized:
+                space = self._normalized
+            else:
+                space = self._unnormalized
+
+        return self.inner_clip(val, space)
+
+    @staticmethod
+    def inner_clip(val, space):
+        if (space.low > space.high).any():
+            raise ValueError("Components of 'low' are greater than corresponding components in 'high'.")
+
+        return np.clip(val, space.low, space.high)
+
     def __repr__(self):
         return f'ModuleSpace{repr(self._unnormalized).replace("Box", "")}'
 
@@ -189,13 +217,13 @@ class ModuleSpace(_PymgridSpace):
                  unnormalized_low,
                  unnormalized_high,
                  normalized_bounds=(0, 1),
-                 clip=True,
+                 clip_vals=True,
                  shape=None,
                  dtype=np.float64,
                  seed=None,
                  verbose=False):
 
-        self.clip = clip
+        self.clip_vals = clip_vals
         self.verbose = verbose
 
         low = np.float64(unnormalized_low) if np.isscalar(unnormalized_low) else unnormalized_low.astype(np.float64)
@@ -253,14 +281,11 @@ class ModuleSpace(_PymgridSpace):
 
     def _bounds_check(self, val, low, high):
         clipped = np.clip(val, low, high)
-        array_like_check = hasattr(val, '__len__') and \
-                           not (all((low <= val) & (val <= high)) or np.allclose(val, low) or np.allclose(val, high))
-        scalar_check = not hasattr(val, '__len__') and not low <= val <= high
 
-        if self.verbose or not self.clip and (clipped != val).any():
+        if self.verbose or not self.clip_vals and (clipped != val).any():
             warnings.warn(f'Value {val} resides out of expected bounds of value to be normalized: [{low}, {high}].')
 
-        if self.clip:
+        if self.clip_vals:
             return clipped
 
         return val
@@ -320,6 +345,12 @@ class MicrogridSpace(_PymgridSpace):
         plus_unnormalized_low = self.dict_op(times_spread_ratio, self._unnormalized.low, operator.add)
 
         return plus_unnormalized_low
+
+    @staticmethod
+    def inner_clip(val, space):
+        def op(v, s):
+            return _PymgridSpace.inner_clip(v, s)
+        return MicrogridSpace.dict_op(val, space, op)
 
     @staticmethod
     def dict_op(first, second, op):
