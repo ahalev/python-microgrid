@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from warnings import warn
+import pandas as pd
 
 
 class TestCase(unittest.TestCase):
@@ -9,12 +9,9 @@ class TestCase(unittest.TestCase):
             super().assertEqual(first, second, msg=msg)
         except (ValueError, AssertionError):
             # array-like or pandas obj
-            try:
                 # convert pandas obj
+            if isinstance(first, (pd.DataFrame, pd.Series)):
                 first, second = first.values, second.values
-            except AttributeError:
-                # not a pandas obj
-                pass
 
             try:
                 np.testing.assert_equal(first, second, err_msg=msg if msg else '')
