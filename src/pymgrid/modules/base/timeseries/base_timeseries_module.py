@@ -158,7 +158,7 @@ class BaseTimeSeriesMicrogridModule(BaseMicrogridModule):
     def time_series(self, value):
         self._time_series = self._set_time_series(value)
         self._min_obs, self._max_obs, self._min_act, self._max_act = self._get_bounds()
-        self._action_space = self._get_action_spaces()
+        self._action_space = self._get_action_spaces(self.normalized_action_bounds)
         self._observation_space = self._get_observation_spaces()
 
     @property
