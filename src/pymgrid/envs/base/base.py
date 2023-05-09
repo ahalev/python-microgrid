@@ -247,9 +247,9 @@ class BaseMicrogridEnv(Microgrid, Env):
         pass
 
     def _log_action(self, action):
-        self._microgrid_logger.log({f'converted_action_{k}': v for k, v in action.items()})
         self._microgrid_logger.log(
-            {f'denormalized_converted_action_{k}': v for k, v in self.microgrid_action_space.denormalize(action).items()}
+            **{f'converted_action_{k}': v for k, v in action.items()},
+            **{f'denormalized_converted_action_{k}': v for k, v in self.microgrid_action_space.denormalize(action).items()}
         )
 
     def _get_obs(self, obs):
