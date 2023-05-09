@@ -17,12 +17,12 @@ class ModularLogger(UserDict):
 
     def log(self, **log_dict):
         for key, value in log_dict.items():
+            if key not in self:
+                self[key] = []
+
             try:
                 self[key].append(value.item())
             except AttributeError:
-                self[key].append(value)
-            except KeyError:
-                self[key] = [np.nan]*self._log_length
                 self[key].append(value)
 
         self._log_length += 1
