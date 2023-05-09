@@ -219,6 +219,8 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
         action = self.convert_action(action)
+        self._log_action(action)
+
         obs, reward, done, info = self.run(action, normalized=normalized)
         obs = self._get_obs(obs)
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
@@ -243,6 +245,12 @@ class BaseMicrogridEnv(Microgrid, Env):
             Resultant microgrid control.
         """
         pass
+
+    def _log_action(self, action):
+        self._microgrid_logger.log({f'converted_action_{k}': v for k, v in action.items()})
+        self._microgrid_logger.log(
+            {f'denormalized_converted_action_{k}': v for k, v in self.microgrid_action_space.denormalize(action).items()}
+        )
 
     def _get_obs(self, obs):
         if self.observation_keys:
