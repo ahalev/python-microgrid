@@ -247,10 +247,21 @@ class BaseMicrogridEnv(Microgrid, Env):
         pass
 
     def _log_action(self, action):
-        self._microgrid_logger.log(
-            **{f'converted_action_{k}': v for k, v in action.items()},
-            **{f'denormalized_converted_action_{k}': v for k, v in self.microgrid_action_space.denormalize(action).items()}
-        )
+        d = {}
+
+        log_items = [
+            ('converted_action', action),
+            ('denormalized_converted_action', self.microgrid_action_space.denormalize(action))
+        ]
+
+        for key, action in log_items:
+            for module, action_list in action.items():
+                for j, act in enumerate(action_list):
+                    if not pd.api.types.is_list_like(act):
+                        act = [act]
+                    d.update({(key, j, f'{module}_{el_num}'): act_n for el_num, act_n in enumerate(act)})
+
+        self._microgrid_logger.log(d)
 
     def _get_obs(self, obs):
         if self.observation_keys:
