@@ -15,7 +15,13 @@ class ModularLogger(UserDict):
         self._log_length = 0
         return d
 
-    def log(self, **log_dict):
+    def log(self, log_dict=None, **log_items):
+        if log_items:
+            if log_dict:
+                raise TypeError('Cannot pass both positional and keyword arguments.')
+
+            log_dict = log_items
+
         for key, value in log_dict.items():
             if key not in self:
                 self[key] = []
