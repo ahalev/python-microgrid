@@ -30,6 +30,8 @@ class ModularLogger(UserDict):
                 self[key].append(value.item())
             except AttributeError:
                 self[key].append(value)
+            except ValueError:
+                raise ValueError('Only scalar values can be logged.')
 
         self._log_length += 1
 
