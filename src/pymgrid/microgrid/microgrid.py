@@ -477,8 +477,11 @@ class Microgrid(yaml.YAMLObject):
         for key, value in self._balance_logger.to_dict().items():
             _log_dict[('balance', 0, key)] = value
 
+        pad = (0, '')
+
         for key, value in self._microgrid_logger.items():
-            _log_dict[(key, 0, '')] = value
+            key = key if pd.api.types.is_list_like(key) else [key]
+            _log_dict[(*key, *pad[len(key)-1:])] = value
 
         col_names = ['module_name', 'module_number', 'field']
 
