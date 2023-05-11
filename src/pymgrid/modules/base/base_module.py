@@ -6,6 +6,7 @@ import numpy as np
 
 from warnings import warn
 
+from pymgrid.utils.eq import verbose_eq
 from pymgrid.utils.logger import ModularLogger
 from pymgrid.utils.space import ModuleSpace
 from pymgrid.utils.serialize import add_numpy_pandas_representers, add_numpy_pandas_constructors, dump_data
@@ -1002,40 +1003,7 @@ class BaseMicrogridModule(yaml.YAMLObject):
         return self
 
     def verbose_eq(self, other, indent=0):
-        if self == other:
-            print('Objects are equal.')
-            return
-
-        enum = 1
-        ind = '\t' * indent
-
-        def print_reason(reason, enum):
-            print(f"{ind}{enum}) {reason}")
-            enum += 1
-            return enum
-
-
-        if type(self) != type(other):
-            enum = print_reason(f'type(self)={type(self)} != type(other)={type(other)}"', enum)
-            return
-
-        print(f'{ind}{type(self).__name__}s are not equal due to: ')
-
-        for attr in self.__dict__.keys():
-            self_attr = getattr(self, attr)
-            other_attr = getattr(other, attr)
-
-            try:
-                eq = bool(self_attr == other_attr)
-            except ValueError:
-                eq = np.array_equal(self_attr, other_attr)
-
-            if not eq:
-                enum = print_reason(f'self.{attr} != other.{attr}', enum)
-                try:
-                    self_attr.verbose_eq(other_attr, indent=indent+1)
-                except AttributeError:
-                    pass
+        return verbose_eq(self, other, self.__dict__.keys(), indent=indent)
 
     def __eq__(self, other):
         if type(self) != type(other):
