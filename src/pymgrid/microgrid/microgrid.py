@@ -7,10 +7,12 @@ from warnings import warn
 
 from pymgrid.microgrid import DEFAULT_HORIZON
 from pymgrid.modules import ModuleContainer, UnbalancedEnergyModule
-from pymgrid.utils.logger import ModularLogger
 from pymgrid.microgrid.utils.step import MicrogridStep
+from pymgrid.utils.eq import verbose_eq
+from pymgrid.utils.logger import ModularLogger
 from pymgrid.utils.serialize import add_numpy_pandas_representers, add_numpy_pandas_constructors, dump_data
 from pymgrid.utils.space import MicrogridSpace
+
 
 class Microgrid(yaml.YAMLObject):
     """
@@ -1038,33 +1040,7 @@ class Microgrid(yaml.YAMLObject):
         }
 
     def verbose_eq(self, other, indent=0):
-        if self == other:
-            print('Objects are equal.')
-            return
-
-        enum = 1
-        ind = '\t' * indent
-
-        def print_reason(reason, enum):
-            print(f"{ind}{enum}) {reason}")
-            enum += 1
-            return enum
-
-        if type(self) != type(other):
-            enum = print_reason(f'type(self)={type(self)} != type(other)={type(other)}"', enum)
-            return
-
-        print(f'{ind}{type(self).__name__}s are not equal due to: ')
-
-        for attr in ('_balance_logger', 'trajectory_func', *self._modules.names()):
-            self_attr = getattr(self, attr)
-            other_attr = getattr(other, attr)
-            if self_attr != other_attr:
-                enum = print_reason(f'self.{attr} != other.{attr}', enum)
-                try:
-                    self_attr.verbose_eq(other_attr, indent=indent+1)
-                except AttributeError:
-                    pass
+        verbose_eq(self, other, ('_balance_logger', 'trajectory_func', *self._modules.names()), indent=indent)
 
     def __dir__(self):
         rv = set(super().__dir__())
