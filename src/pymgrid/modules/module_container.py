@@ -398,6 +398,35 @@ class ModuleList(UserList):
         """
         return self
 
+    def verbose_eq(self, other, indent=0):
+        if self == other:
+            print('Objects are equal.')
+            return
+
+        enum = 1
+        ind = '\t' * indent
+
+        def print_reason(reason, enum):
+            print(f"{ind}{enum}) {reason}")
+            enum += 1
+            return enum
+
+        if type(self) != type(other):
+            enum = print_reason(f'type(self)={type(self)} != type(other)={type(other)}"', enum)
+            return
+
+        print(f'{ind}{type(self).__name__}s are not equal due to: ')
+
+        if len(self) != len(other):
+            enum = print_reason(f'len(self)={len(self)} != len(other)={len(other)}"', enum)
+
+        for j, (self_module, other_module) in enumerate(zip(self, other)):
+            if self_module != other_module:
+                enum = print_reason(f'self[{j}] != other[{j}]', enum)
+                try:
+                    self_module.verbose_eq(other_module, indent=indent+1)
+                except AttributeError:
+                    pass
 
 def get_subcontainers(modules):
     """
