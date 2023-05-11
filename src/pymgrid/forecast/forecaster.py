@@ -166,7 +166,7 @@ class Forecaster:
         if type(self) != type(other):
             return NotImplemented
 
-        return (self._fill_arr == other._fill_arr).all() and \
+        return np.array_equal(self._fill_arr, other._fill_arr) and \
                all(v == other.__dict__[k] for k, v in self.__dict__.items() if k != '_fill_arr')
 
     def __call__(self, val_c, val_c_n, n):
