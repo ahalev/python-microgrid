@@ -2,12 +2,13 @@ import numpy as np
 
 
 def verbose_eq(obj_a, obj_b, attrs_or_indices, indent=0):
+    ind = '|   ' * (indent -1)
+    reason_num = 1
+
     if obj_a == obj_b:
-        print('Objects are equal.')
+        print(f'{ind}Objects are equal.')
         return
 
-    reason_num = 1
-    ind = '\t' * indent
 
     def print_reason(reason, num):
         print(f"{ind}{num}) {reason}")
