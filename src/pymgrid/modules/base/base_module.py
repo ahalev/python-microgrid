@@ -1009,8 +1009,23 @@ class BaseMicrogridModule(yaml.YAMLObject):
         if type(self) != type(other):
             return NotImplemented
 
-        diff = [(k1, v1, v2) for (k1, v1), (k2, v2) in zip(self.__dict__.items(), other.__dict__.items()) if
-                ((hasattr(v1, "any") and not np.allclose(v1, v2)) or (not hasattr(v1, "any") and v1 != v2))]
+        def are_equal(v1, v2):
+            try:
+                _are_equal = bool(v1 == v2)
+                if _are_equal:
+                    return True
+            except ValueError:
+                pass
+
+            try:
+                return np.allclose(v1, v2)
+            except (ValueError, TypeError):
+                return False
+
+        diff = [
+            (k1, v1, v2) for (k1, v1), (k2, v2) in zip(self.__dict__.items(), other.__dict__.items())
+            if not are_equal(v1, v2)
+        ]
 
         return len(diff) == 0
 
