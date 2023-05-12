@@ -40,7 +40,10 @@ def verbose_eq(obj_a, obj_b, attrs_or_indices, indent=0):
             try:
                 self_attr.verbose_eq(other_attr, indent=indent+1)
             except AttributeError:
-                pass
+                try:
+                    verbose_eq(self_attr, other_attr, attrs_or_indices=self_attr.__dict__, indent=indent+1)
+                except Exception:
+                    pass
 
 
 def _get_attrs_reason(obj_a, obj_b, attr_idx):
