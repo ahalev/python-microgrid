@@ -4,76 +4,80 @@ import warnings
 
 from abc import abstractmethod
 from collections import namedtuple
+from copy import deepcopy
 from gym.spaces import Box, Dict, Space, Tuple
 from typing import Union
 
 
+def _extract_action_spaces(d):
+    controllable = {}
+    for module_name, module_list in d.items():
+        controllable_spaces = [v['action_space'] for v in module_list if 'controllable' in v['module_type']]
+        if controllable_spaces:
+            controllable[module_name] = controllable_spaces
+
+    return controllable
+
+
+def _extract_observation_spaces(d):
+    obs_spaces = {}
+    for module_name, module_list in d.items():
+        spaces = [v['observation_space'] for v in module_list]
+        if spaces:
+            obs_spaces[module_name] = spaces
+
+    return obs_spaces
+
+
+def _transform_builtins(d, normalized=False):
+    space_key = 'normalized' if normalized else 'unnormalized'
+
+    transformed = {}
+
+    if isinstance(d, dict):
+        transformed = {}
+        for k, v in d.items():
+            if isinstance(v, _PymgridSpace):
+                transformed[k] = v[space_key]
+            else:
+                transformed[k] = _transform_builtins(v, normalized=normalized)
+
+        transformed = Dict(transformed)
+
+    elif isinstance(d, list):
+        transformed = []
+        for v in d:
+            if isinstance(v, _PymgridSpace):
+                transformed.append(v[space_key])
+            else:
+                transformed.append(_transform_builtins(v, normalized=normalized))
+
+        transformed = Tuple(transformed)
+
+    return transformed
+
+
+def extract_builtins(d, act_or_obs='act', normalized=False):
+    if act_or_obs == 'act':
+        spaces = _extract_action_spaces(d)
+    elif act_or_obs == 'obs':
+        spaces = _extract_observation_spaces(d)
+    else:
+        raise NameError(act_or_obs)
+
+    return _transform_builtins(spaces, normalized=normalized)
+
+
 class _PymgridDict(Dict):
-    def __init__(self, d, act_or_obs, normalized=False, seed=None):
-        builtins = self._extract_builtins(d, act_or_obs=act_or_obs, normalized=normalized)
+    def __init__(self, d, seed=None):
         try:
-            super().__init__(builtins, seed=seed)
+            super().__init__(d, seed=seed)
         except AssertionError:
             import gym
             warnings.warn(f"gym.Space does not accept argument 'seed' in version {gym.__version__}; this argument will "
                           f"be ignored. Upgrade your gym version with 'pip install -U gym' to use this functionality.")
 
-            super().__init__(builtins.spaces)
-
-    def _extract_builtins(self, d, act_or_obs='act', normalized=False):
-        if act_or_obs == 'act':
-            spaces = self._extract_action_spaces(d)
-        elif act_or_obs == 'obs':
-            spaces = self._extract_observation_spaces(d)
-        else:
-            raise NameError(act_or_obs)
-
-        return self._transform_builtins(spaces, normalized=normalized)
-
-    def _extract_action_spaces(self, d):
-        controllable = {}
-        for module_name, module_list in d.items():
-            controllable_spaces = [v['action_space'] for v in module_list if 'controllable' in v['module_type']]
-            if controllable_spaces:
-                controllable[module_name] = controllable_spaces
-
-        return controllable
-
-    def _extract_observation_spaces(self, d):
-        obs_spaces = {}
-        for module_name, module_list in d.items():
-            spaces = [v['observation_space'] for v in module_list]
-            if spaces:
-                obs_spaces[module_name] = spaces
-
-        return obs_spaces
-
-    def _transform_builtins(self, d, normalized=False):
-        space_key = 'normalized' if normalized else 'unnormalized'
-
-        transformed = {}
-
-        if isinstance(d, dict):
-            transformed = {}
-            for k, v in d.items():
-                if isinstance(v, _PymgridSpace):
-                    transformed[k] = v[space_key]
-                else:
-                    transformed[k] = self._transform_builtins(v, normalized=normalized)
-
-            transformed = Dict(transformed)
-
-        elif isinstance(d, list):
-            transformed = []
-            for v in d:
-                if isinstance(v, _PymgridSpace):
-                    transformed.append(v[space_key])
-                else:
-                    transformed.append(self._transform_builtins(v, normalized=normalized))
-
-            transformed = Tuple(transformed)
-
-        return transformed
+            super().__init__(d.spaces)
 
     def get_attr(self, attr):
         return {k: [getattr(v, attr) for v in tup] for k, tup in self.items()}
