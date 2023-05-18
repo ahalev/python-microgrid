@@ -1,4 +1,5 @@
 import numpy as np
+
 import yaml
 
 from pymgrid.modules.base import BaseMicrogridModule
