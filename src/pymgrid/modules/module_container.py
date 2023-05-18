@@ -52,7 +52,11 @@ class Container(UserDict):
         """
         d = dict()
         for k, raw_container in self.containers.items():
-            d.update(raw_container)
+            if isinstance(raw_container, ModuleList):
+                d[k] = raw_container
+            else:
+                d.update(raw_container)
+
         return d
 
     def to_tuples(self):
