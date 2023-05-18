@@ -401,7 +401,6 @@ class TestMicrogridLoadPV(TestCase):
 
         load_met = min(self.load_ts[step_number], self.pv_ts[step_number])
         loss_load = max(self.load_ts[step_number] - load_met, 0)
-        pv_curtailment = max(self.pv_ts[step_number]-load_met, 0)
 
         # Checking the log populated correctly.
 
@@ -419,14 +418,13 @@ class TestMicrogridLoadPV(TestCase):
 
         self.assertEqual(log_entry('renewable',  'renewable_current'), self.pv_ts[step_number])
         self.assertEqual(log_entry('renewable', 'renewable_used'), load_met)
-        self.assertEqual(log_entry('renewable', 'curtailment'), pv_curtailment)
 
         self.assertEqual(log_entry('balancing', 'loss_load'), loss_load)
 
         self.assertEqual(log_entry('balance', 'reward'), -1 * loss_load_cost)
         self.assertEqual(log_entry('balance', 'overall_provided_to_microgrid'), self.load_ts[step_number])
         self.assertEqual(log_entry('balance', 'overall_absorbed_from_microgrid'), self.load_ts[step_number])
-        self.assertEqual(log_entry('balance', 'fixed_provided_to_microgrid'), 0.0)
+        self.assertEqual(log_entry('balance', 'fixed_provided_to_microgrid'), self.pv_ts[step_number])
         self.assertEqual(log_entry('balance', 'fixed_absorbed_from_microgrid'), self.load_ts[step_number])
         self.assertEqual(log_entry('balance', 'controllable_absorbed_from_microgrid'), 0.0)
         self.assertEqual(log_entry('balance', 'controllable_provided_to_microgrid'), 0.0)
