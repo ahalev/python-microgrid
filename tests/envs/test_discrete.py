@@ -164,6 +164,31 @@ class TestDiscreteEnvScenario(TestCase):
 
                     self.assertEqual(initial_step, 1)
 
+    def test_exclude_forecast(self):
+        env_with_forecasts = DiscreteMicrogridEnv.from_scenario(self.microgrid_number,
+                                                                observation_keys='exclude_forecasts')
+        env_without_forecasts = DiscreteMicrogridEnv.from_scenario(self.microgrid_number)
+
+        env_with_forecasts.modules.set_attrs(forecast_horizon=23)
+        env_without_forecasts.modules.set_attrs(forecast_horizon=0)
+
+        for j in range(4):
+
+            action = env_with_forecasts.action_space.sample()
+
+            out_with_forecasts = env_with_forecasts.step(action)
+            out_without_forecasts = env_without_forecasts.step(action)
+            keys = 'obs', 'reward' 'done' 'info'
+
+            for key, obj_1, obj_2 in zip(keys, out_with_forecasts, out_without_forecasts):
+                with self.subTest(key=key, step=j):
+                    self.assertEqual(obj_1, obj_2)
+
+
+        print('here')
+        print('x')
+
+
 
 
 class TestDiscreteEnvScenario1(TestDiscreteEnvScenario):
