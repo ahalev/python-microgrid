@@ -113,10 +113,9 @@ class Microgrid(yaml.YAMLObject):
                                                    overgeneration_cost)
 
         # TODO (ahalev) transform envs to wrappers, and remove microgrid from attr names)
-        self.microgrid_action_space = MicrogridSpace(
-            self._modules.get_attrs('action_space', 'module_type', as_pandas=False), 'act'
-        )
-        self.microgrid_observation_space = MicrogridSpace(
+        self.microgrid_action_space = MicrogridSpace.from_module_spaces(
+            self._modules.get_attrs('action_space', 'module_type', as_pandas=False), 'act')
+        self.microgrid_observation_space = MicrogridSpace.from_module_spaces(
             self._modules.get_attrs('observation_space', as_pandas=False), 'obs'
         )
 
