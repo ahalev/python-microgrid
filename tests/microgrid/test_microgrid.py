@@ -421,8 +421,11 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
         self.assertEqual(log_entry('balancing', 'loss_load'), loss_load)
 
         self.assertEqual(log_entry('balance', 'reward'), -1 * loss_load_cost)
-        self.assertEqual(log_entry('balance', 'overall_provided_to_microgrid'), self.pv_ts[step_number])
-        self.assertEqual(log_entry('balance', 'overall_absorbed_from_microgrid'), self.pv_ts[step_number])
+
+        overall_provided_absorbed = max(self.pv_ts[step_number], self.load_ts[step_number])
+        self.assertEqual(log_entry('balance', 'overall_provided_to_microgrid'), overall_provided_absorbed)
+        self.assertEqual(log_entry('balance', 'overall_absorbed_from_microgrid'), overall_provided_absorbed)
+
         self.assertEqual(log_entry('balance', 'fixed_provided_to_microgrid'), self.pv_ts[step_number])
         self.assertEqual(log_entry('balance', 'fixed_absorbed_from_microgrid'), self.load_ts[step_number])
         self.assertEqual(log_entry('balance', 'controllable_absorbed_from_microgrid'), 0.0)
