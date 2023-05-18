@@ -203,7 +203,7 @@ class _PymgridSpace(Space):
         return np.clip(val, space.low, space.high)
 
     def __repr__(self):
-        return f'ModuleSpace{repr(self._unnormalized).replace("Box", "")}'
+        return f'{self.__class__.__name__}({repr(self._unnormalized).replace("Box", "")})'
 
     def __eq__(self, other):
         if type(self) != type(other):
