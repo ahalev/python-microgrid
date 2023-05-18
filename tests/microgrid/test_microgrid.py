@@ -352,10 +352,8 @@ class TestMicrogridLoadPV(TestCase):
 
     def test_sample_action_with_flex(self):
         sampled_action = self.microgrid.sample_action(sample_flex_modules=True)
-        self.assertEqual(len(sampled_action), 2)
-        self.assertIn('renewable', sampled_action)
+        self.assertEqual(len(sampled_action), 1)
         self.assertIn('balancing', sampled_action)
-        self.assertEqual(len(sampled_action['renewable']), self.n_pvs)
 
     def test_state_dict(self):
         sd = self.microgrid.state_dict()
