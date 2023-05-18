@@ -370,3 +370,9 @@ class MicrogridSpace(_PymgridSpace):
             second_list = second[k]
             out[k] = [op(f, s) for f, s in zip(first_list, second_list)]
         return out
+
+    @classmethod
+    def from_module_spaces(cls, module_spaces, act_or_obs):
+        normalized = extract_builtins(module_spaces, act_or_obs, normalized=True)
+        unnormalized = extract_builtins(module_spaces, act_or_obs, normalized=False)
+        return cls(unnormalized, normalized)
