@@ -62,6 +62,7 @@ class CurtailmentModule(BaseMicrogridModule):
         self.curtailment_cost = curtailment_cost
 
         self._curtailment_modules = None
+        self._next_max_consumption = None
 
     def reset(self):
         pass
@@ -87,6 +88,7 @@ class CurtailmentModule(BaseMicrogridModule):
                 curtailment_modules.extend(self._get_modules_from_ref(module_container, module_ref))
 
         self._curtailment_modules = ModuleContainer(curtailment_modules, set_names=False)
+        self._update_max_consumption()
 
     def _get_modules_from_ref(self, modules, ref):
         if isinstance(ref, BaseMicrogridModule):  # Module
@@ -121,10 +123,21 @@ class CurtailmentModule(BaseMicrogridModule):
         info = {'absorbed_energy': curtailment}
         reward = -1.0 * self.get_cost(curtailment)
 
-        return reward, False, info
+        done = self._update_max_consumption()
+
+        return reward, done, info
 
     def get_cost(self, curtailment):
         return self.curtailment_cost * curtailment
+
+    def _update_max_consumption(self):
+        try:
+            self._next_max_consumption = self._curtailment_modules.get_attrs('max_production').sum().item()
+            return False
+        except IndexError:
+            assert self._current_step == self._curtailment_modules.get_attrs('final_step', unique=True).item() - 1
+            self._next_max_consumption = 0.0
+            return True
 
     def _state_dict(self):
         return dict()
@@ -152,7 +165,13 @@ class CurtailmentModule(BaseMicrogridModule):
 
     @property
     def max_consumption(self):
-        return self._curtailment_modules.get_attrs('production').sum().item()
+        module_current_step = self._curtailment_modules.get_attrs('current_step', unique=True).item()
+        if not self._current_step == module_current_step - 1:
+            raise RuntimeError(f'self.current_step={self._current_step} is not one less than curtailment module current'
+                               f'step ({module_current_step}). This module should only be called after curtailment'
+                               f'modules.')
+
+        return self._next_max_consumption
 
     @property
     def is_sink(self):
