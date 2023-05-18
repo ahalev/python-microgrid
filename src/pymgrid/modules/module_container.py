@@ -2,9 +2,11 @@ import json
 import pandas as pd
 
 from collections import UserDict, UserList
+import warnings
 
 from pymgrid.modules.base import BaseMicrogridModule
 from pymgrid.utils.eq import verbose_eq
+
 
 class Container(UserDict):
     def __init__(self, *args, **kwargs):
@@ -330,14 +332,14 @@ class ModuleContainer(Container):
         For example, container.sinks.iterlist() returns an iterator of all the sinks, without their names.
 
     """
-    def __init__(self, modules):
+    def __init__(self, modules, set_names=True):
         """
 
         :param modules: list-like. List of _modules or tuples. Latter case: tup(str, Module); str to define name of module
             and second element is the module.
 
         """
-        self._containers = get_subcontainers(modules)
+        self._containers = get_subcontainers(modules, set_names=set_names)
         midlevels = self._set_midlevel()
         self._types_by_name = self._get_types_by_name()
         super().__init__(**midlevels)
@@ -403,7 +405,7 @@ class ModuleList(UserList):
         verbose_eq(self, other, list(range(len(self))), indent=indent)
 
 
-def get_subcontainers(modules):
+def get_subcontainers(modules, set_names=True):
     """
     :meta private:
     """
@@ -451,7 +453,14 @@ def get_subcontainers(modules):
             d[source_sink_both][module_name].append(module)
         except KeyError:
             d[source_sink_both][module_name] = ModuleList([module])
-        module.name = (module_name, len(d[source_sink_both][module_name]) - 1)
+
+        if set_names:
+            name = (module_name, len(d[source_sink_both][module_name]) - 1)
+
+            if not all(x is None for x in module.name):
+                warnings.warn(f"Overwriting module name '{module.name}' with name '{name}'.")
+
+            module.name = name
 
     modules_dict = dict(fixed=fixed,
                         flex=flex,
