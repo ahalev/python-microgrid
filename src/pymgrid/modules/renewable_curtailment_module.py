@@ -117,7 +117,14 @@ class CurtailmentModule(BaseMicrogridModule):
         if not self._curtailment_modules:
             raise RuntimeError('Must call RenewableCurtailmentModule.setup before usage!')
 
-        pass
+        curtailment = min(external_energy_change, self.max_consumption)
+        info = {'absorbed_energy': curtailment}
+        reward = -1.0 * self.get_cost(curtailment)
+
+        return reward, False, info
+
+    def get_cost(self, curtailment):
+        return self.curtailment_cost * curtailment
 
     def _state_dict(self):
         return dict()
@@ -136,15 +143,16 @@ class CurtailmentModule(BaseMicrogridModule):
 
     @property
     def min_act(self):
+        # TODO (ahalev) find a better bound
         return -np.inf
 
     @property
     def max_act(self):
-        return np.inf
+        return 0.0
 
     @property
     def max_consumption(self):
-        return self._curtailment_modules
+        return self._curtailment_modules.get_attrs('production').sum().item()
 
     @property
     def is_sink(self):
