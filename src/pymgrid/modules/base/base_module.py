@@ -305,8 +305,8 @@ class BaseMicrogridModule(yaml.YAMLObject):
 
         Parameters
         ----------
-        external_energy_change : float or None
-            Amount of energy to provide or absorb.
+        external_energy_change : float >= 0 or None
+            Amount of energy to provide or absorb. A non-negative number.
         as_source : bool
             Whether the module is acting as a source.
         as_sink
