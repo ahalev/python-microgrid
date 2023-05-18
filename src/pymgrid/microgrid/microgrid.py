@@ -6,7 +6,7 @@ from copy import deepcopy
 from warnings import warn
 
 from pymgrid.microgrid import DEFAULT_HORIZON
-from pymgrid.modules import ModuleContainer, UnbalancedEnergyModule
+from pymgrid.modules import ModuleContainer, UnbalancedEnergyModule, CurtailmentModule
 from pymgrid.microgrid.utils.step import MicrogridStep
 from pymgrid.utils.eq import verbose_eq
 from pymgrid.utils.logger import ModularLogger
@@ -33,7 +33,9 @@ class Microgrid(yaml.YAMLObject):
         .. note::
         The constructor copies modules passed to it.
 
-    add_unbalanced_module : bool, default True.
+    add_curtailment_module : bool, default False
+
+    add_unbalanced_module : bool, default True
         Whether to add an unbalanced energy module to your microgrid. Such a module computes and attributes
         costs to any excess supply or demand.
         Set to True unless ``modules`` contains an ``UnbalancedEnergyModule``.
@@ -101,14 +103,18 @@ class Microgrid(yaml.YAMLObject):
 
     def __init__(self,
                  modules,
+                 add_curtailment_module=False,
                  add_unbalanced_module=True,
+                 curtailment_cost=0.0,
                  loss_load_cost=10.,
                  overgeneration_cost=2.,
                  reward_shaping_func=None,
                  trajectory_func=None):
 
         self._modules = self._get_module_container(modules,
+                                                   add_curtailment_module,
                                                    add_unbalanced_module,
+                                                   curtailment_cost,
                                                    loss_load_cost,
                                                    overgeneration_cost)
 
@@ -137,7 +143,13 @@ class Microgrid(yaml.YAMLObject):
                                       overgeneration_cost=overgeneration_cost
                                       )
 
-    def _get_module_container(self, modules, add_unbalanced_module, loss_load_cost, overgeneration_cost):
+    def _get_module_container(self,
+                              modules,
+                              add_curtailment_module,
+                              add_unbalanced_module,
+                              curtailment_cost,
+                              loss_load_cost,
+                              overgeneration_cost):
         """
         Types of _modules:
         Fixed source: provides energy to the microgrid.
@@ -168,10 +180,21 @@ class Microgrid(yaml.YAMLObject):
         if not pd.api.types.is_list_like(modules):
             raise TypeError("modules must be list-like of modules.")
 
+        if add_curtailment_module:
+            curtailment_module = CurtailmentModule(curtailment_cost=curtailment_cost)
+            modules.append(curtailment_module)
+        else:
+            curtailment_module = None
+
         if add_unbalanced_module:
             modules.append(self._get_unbalanced_energy_module(loss_load_cost, overgeneration_cost))
 
-        return ModuleContainer(modules)
+        container = ModuleContainer(modules)
+
+        if curtailment_module:
+            curtailment_module.setup(container)
+
+        return container
 
     def _check_trajectory_func(self, trajectory_func):
         if trajectory_func is None:
