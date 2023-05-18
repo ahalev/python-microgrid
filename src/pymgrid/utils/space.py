@@ -296,10 +296,17 @@ class ModuleSpace(_PymgridSpace):
 
 
 class MicrogridSpace(_PymgridSpace):
-    def __init__(self, module_space_dict, act_or_obs, seed=None):
+    def __init__(self, unnormalized, normalized=None, seed=None):
 
-        self._unnormalized = _PymgridDict(module_space_dict, act_or_obs)
-        self._normalized = _PymgridDict(module_space_dict, act_or_obs, normalized=True)
+        if normalized is None:
+            if not isinstance(unnormalized, ModuleSpace):
+                raise TypeError('Must pass both normalized and unnormalized or unnormalized must be ModuleSpace'
+                                'with these aattributes.')
+
+            normalized, unnormalized = unnormalized.normalized, unnormalized.unnormalized
+
+        self._unnormalized = _PymgridDict(unnormalized)
+        self._normalized = _PymgridDict(normalized)
 
         try:
             super().__init__(shape=None, seed=seed)
