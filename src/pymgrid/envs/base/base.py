@@ -236,8 +236,9 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         Parameters
         ----------
-        action : int or np.ndarray
-            Action to convert. Integer if discrete, np.ndarray if continuous.
+        action : int, np.ndarray or dict
+            Action to convert. Integer if discrete, np.ndarray if continuous,
+            dict if converting from a microgrid action.
 
         Returns
         -------
