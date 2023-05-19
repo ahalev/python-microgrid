@@ -136,6 +136,9 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
             if op == 'mul':
                 module_act[-1] *= net_load
+            elif net_load == 0.0 or np.isclose(net_load, 0.0):
+                # Same is true when multiplying, but there it's done for us (multiplying by zero is n.p.)
+                module_act[-1] = 0.0
             else:
                 module_act[-1] /= net_load
 
