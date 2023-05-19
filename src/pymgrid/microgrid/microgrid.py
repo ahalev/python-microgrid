@@ -961,7 +961,7 @@ class Microgrid(yaml.YAMLObject):
                 warn(f'Ignoring keys {mapping.keys()} when loading from scenario.')
             return cls.from_scenario(microgrid_number)
 
-        instance = cls(mapping["modules"], add_unbalanced_module=False)
+        instance = cls(mapping["modules"], add_curtailment_module=False, add_unbalanced_module=False)
         instance.deserialize(mapping)
         return instance
 

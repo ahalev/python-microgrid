@@ -347,6 +347,7 @@ class BaseMicrogridEnv(Microgrid, Env):
         kwargs = kwargs.copy()
 
         kwargs['add_unbalanced_module'] = kwargs.pop('add_unbalanced_module', False)
+        kwargs['add_curtailment_module'] = kwargs.pop('add_curtailment_module', False)
         kwargs['reward_shaping_func'] = kwargs.pop('reward_shaping_func', microgrid.reward_shaping_func)
         kwargs['trajectory_func'] = kwargs.pop('trajectory_func', microgrid.trajectory_func)
 
