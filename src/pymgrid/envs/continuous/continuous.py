@@ -89,11 +89,11 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             fixed_consumption = 0.0
 
         try:
-            fixed_production = self.modules.fixed.get_attrs('max_production').sum().item()
+            flex_production = self.modules.flex.get_attrs('max_production').sum().item()
         except AttributeError:
-            fixed_production = 0.0
+            flex_production = 0.0
 
-        return fixed_consumption - fixed_production
+        return fixed_consumption - flex_production
 
     def convert_action(self, action, to_microgrid=True):
         # TODO test this. Actions are percentages
