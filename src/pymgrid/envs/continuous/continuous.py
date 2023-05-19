@@ -161,7 +161,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             try:
                 assert absolute_action in self._nested_action_space
             except AssertionError:
-                clipped = self.microgrid_action_space.clip(absolute_action)
+                clipped = self.microgrid_action_space.clip(absolute_action, normalized=False)
 
                 if np.isclose(flatten(self._nested_action_space, absolute_action),
                               flatten(self._nested_action_space, absolute_action)).all():
