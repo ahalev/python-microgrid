@@ -33,7 +33,7 @@ class Microgrid(yaml.YAMLObject):
         .. note::
         The constructor copies modules passed to it.
 
-    add_curtailment_module : bool, default False
+    add_curtailment_module : bool, default True
 
     add_unbalanced_module : bool, default True
         Whether to add an unbalanced energy module to your microgrid. Such a module computes and attributes
@@ -103,7 +103,7 @@ class Microgrid(yaml.YAMLObject):
 
     def __init__(self,
                  modules,
-                 add_curtailment_module=False,
+                 add_curtailment_module=True,
                  add_unbalanced_module=True,
                  curtailment_cost=0.0,
                  loss_load_cost=10.,
