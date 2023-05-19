@@ -8,7 +8,7 @@ from tests.helpers.test_case import TestCase
 
 class TestMicrogridSerialization(TestCase):
     def test_serialize_no_modules(self):
-        microgrid = Microgrid([], add_unbalanced_module=False)
+        microgrid = Microgrid([], add_curtailment_module=False, add_unbalanced_module=False)
         dump = microgrid.dump()
         loaded = Microgrid.load(dump)
 
