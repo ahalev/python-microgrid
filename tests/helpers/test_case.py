@@ -4,7 +4,6 @@ import pandas as pd
 
 from unittest.util import safe_repr
 
-
 class TestCase(unittest.TestCase):
     def assertEqual(self, first, second, msg=None) -> None:
         try:
