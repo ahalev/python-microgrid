@@ -123,7 +123,7 @@ class CurtailmentModule(BaseMicrogridModule):
             raise RuntimeError('Must call RenewableCurtailmentModule.setup before usage!')
 
         curtailment = min(external_energy_change, self.max_consumption)
-        info = {'absorbed_energy': curtailment, 'net_renewable_usage': self.max_consumption-curtailment}
+        info = {'absorbed_energy': curtailment}
         reward = -1.0 * self.get_cost(curtailment)
 
         done = self._update_max_consumption()
