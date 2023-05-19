@@ -75,7 +75,7 @@ class CurtailmentModule(BaseMicrogridModule):
 
         Parameters
         ----------
-        microgrid : :class:`pymgrid.Microgrid`
+        module_container : :class:`.ModuleContainer`
 
         Returns
         -------
