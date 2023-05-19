@@ -559,7 +559,7 @@ class TestMicrogridRewardShapingWithCurtailment(TestMicrogridLoadPVWithCurtailme
     def set_microgrid(self):
         original_microgrid, n_loads, n_pvs = super().set_microgrid()
         new_microgrid = Microgrid(original_microgrid.modules.to_tuples(),
-                                  add_curtailment_module=True,
+                                  add_curtailment_module=False,
                                   add_unbalanced_module=False,
                                   reward_shaping_func=self.reward_shaping_func)
 
