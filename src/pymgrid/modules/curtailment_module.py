@@ -64,8 +64,11 @@ class CurtailmentModule(BaseMicrogridModule):
         self._curtailment_modules = None
         self._next_max_consumption = None
 
-    def reset(self):
-        pass
+    def reset(self, module_container=None):
+        if module_container:
+            self.setup(module_container)
+
+        return super().reset()
 
     def setup(self, module_container):
         """
