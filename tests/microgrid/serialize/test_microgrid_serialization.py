@@ -16,7 +16,8 @@ class TestMicrogridSerialization(TestCase):
 
     def test_serialize_with_renewable(self):
         microgrid = get_modular_microgrid(remove_modules=["genset", "battery", "load", "grid"],
-                                          add_unbalanced_module=False)
+                                          add_unbalanced_module=False,
+                                          add_curtailment_module=False)
 
         self.assertEqual(len(microgrid.modules), 1)
         self.assertEqual(microgrid, Microgrid.load(microgrid.dump()))
