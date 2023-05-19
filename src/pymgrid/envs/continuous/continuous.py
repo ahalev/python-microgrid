@@ -121,18 +121,6 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         return flatten(self._nested_action_space, relative_action)
 
-    def _get_absolute_action(self, relative_action):
-        # TODO test this
-        net_load = self.compute_net_load()
-
-        return MicrogridSpace.dict_op(relative_action, net_load, operator.mul)
-
-    def _get_relative_action(self, absolute_action):
-        # TODO test this
-        net_load = self.compute_net_load()
-
-        return MicrogridSpace.dict_op(absolute_action, net_load, operator.truediv)
-
     @staticmethod
     def make_relative(action, net_load):
         return NetLoadContinuousMicrogridEnv.convert(action, net_load, 'div')
