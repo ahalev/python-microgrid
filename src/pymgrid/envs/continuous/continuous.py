@@ -77,10 +77,15 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
     def compute_net_load(self):
         """
+        Compute the net load at the current step.
+
         Net load is load minus renewables.
-        TODO: make renewable a fixed module
+        -------
+
         Returns
         -------
+        net_load : float
+            Net load.
 
         """
         try:
