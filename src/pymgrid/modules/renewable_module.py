@@ -51,7 +51,7 @@ class RenewableModule(BaseTimeSeriesMicrogridModule):
         If False, actions are clipped to the limit possible.
 
     """
-    module_type = ('renewable', 'fixed')
+    module_type = ('renewable', 'flex')
     yaml_tag = u"!RenewableModule"
     yaml_loader = yaml.SafeLoader
     yaml_dumper = yaml.SafeDumper
