@@ -59,10 +59,9 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     check_actions = True
 
     def _get_action_space(self, remove_redundant_actions=False):
-        self._nested_action_space = self._get_nested_action_space
+        self._nested_action_space = self._get_nested_action_space()
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
-    @property
     def _get_nested_action_space(self):
         as_builtins_unnormalized = extract_builtins(self._modules.get_attrs('action_space', 'module_type', as_pandas=False), 'act')
         as_builtins_normalized = Dict({
