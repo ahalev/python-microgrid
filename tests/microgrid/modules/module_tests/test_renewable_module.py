@@ -1,3 +1,4 @@
+import numpy as np
 
 from pymgrid.modules import RenewableModule
 
@@ -11,7 +12,7 @@ from tests.microgrid.modules.module_tests.timeseries_modules import (
 
 class TestRenewableModuleNoForecasting(TestTimeseriesModuleNoForecasting):
     __test__ = True
-    action_space_dim = 1
+    action_space_dim = 0
 
     def get_module(self):
         return RenewableModule(self.module_time_series)
@@ -24,20 +25,16 @@ class TestRenewableModuleNoForecasting(TestTimeseriesModuleNoForecasting):
         renewable_module = self.get_module()
         self.assertEqual(renewable_module.current_renewable, self.time_series[0])
 
-        unnormalized_action = 1
-        action = renewable_module.to_normalized(unnormalized_action, act=True)
-        obs, reward, done, info = renewable_module.step(action)
+        obs, reward, done, info = renewable_module.step(np.array([]))
         obs = renewable_module.from_normalized(obs, obs=True)
         self.assertEqual(obs, self.time_series[1])
         self.assertEqual(reward, 0)
         self.assertFalse(done)
-        self.assertEqual(info["provided_energy"], unnormalized_action)
-        self.assertEqual(info["curtailment"], 0)
-
+        self.assertEqual(info["provided_energy"], self.time_series[0])
 
 class TestRenewableModuleForecasting(TestTimeseriesModuleForecasting):
     __test__ = True
-    action_space_dim = 1
+    action_space_dim = 0
 
     def get_module(self):
         return RenewableModule(self.module_time_series, forecaster="oracle", forecast_horizon=self.forecast_horizon)
@@ -46,15 +43,13 @@ class TestRenewableModuleForecasting(TestTimeseriesModuleForecasting):
         renewable_module = self.get_module()
         self.assertEqual(renewable_module.current_renewable, self.time_series[0])
 
-        unnormalized_action = 1
-        action = renewable_module.to_normalized(unnormalized_action, act=True)
+        action = renewable_module.to_normalized(np.array([]), act=True)
         obs, reward, done, info = renewable_module.step(action)
         obs = renewable_module.from_normalized(obs, obs=True)
         self.assertEqual(obs, self.time_series[1:self.forecast_horizon+2])
         self.assertEqual(reward, 0)
         self.assertFalse(done)
-        self.assertEqual(info["provided_energy"], unnormalized_action)
-        self.assertEqual(info["curtailment"], 0)
+        self.assertEqual(info["provided_energy"], self.time_series[0])
 
 
 class TestRenewableModuleForecastingNegativeVals(TestTimeSeriesModuleForecastingNegativeVals,
