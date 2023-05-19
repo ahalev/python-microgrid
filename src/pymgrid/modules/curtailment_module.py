@@ -66,7 +66,7 @@ class CurtailmentModule(BaseMicrogridModule):
     def reset(self):
         pass
 
-    def setup(self, module_container):
+    def setup(self, microgrid):
         """
 
         Parameters
@@ -78,13 +78,13 @@ class CurtailmentModule(BaseMicrogridModule):
 
         """
         if self._modules_to_curtail is None:
-            curtailment_modules = module_container.fixed.source.to_dict()
+            curtailment_modules = microgrid.modules.fixed.source.to_dict()
 
         else:
             curtailment_modules = []
 
             for module_ref in self._modules_to_curtail:
-                curtailment_modules.extend(self._get_modules_from_ref(module_container, module_ref))
+                curtailment_modules.extend(self._get_modules_from_ref(microgrid.module, module_ref))
 
         self._curtailment_modules = ModuleContainer(curtailment_modules, set_names=False)
 
