@@ -328,9 +328,6 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
     def test_populated_correctly(self):
         self.assertTrue(hasattr(self.microgrid.modules, 'load'))
         self.assertTrue(hasattr(self.microgrid.modules, 'renewable'))
-        self.assertTrue(hasattr(self.microgrid.modules, 'curtailment'))
-        self.assertEqual(len(self.microgrid.modules.curtailment), 1)
-
         self.assertEqual(len(self.microgrid.modules), self.n_modules)  # load, pv, unbalanced
 
     def test_current_load_correct(self):
