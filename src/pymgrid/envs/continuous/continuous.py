@@ -111,13 +111,13 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         if to_microgrid:
             relative_action = unflatten(self._nested_action_space, action)
-            absolute_action = self._get_absolute_action(relative_action)
+            absolute_action = self.make_absolute(relative_action, self.compute_net_load())
 
             self._check_action(absolute_action)
 
             return absolute_action
 
-        relative_action = self._get_relative_action(action)
+        relative_action = self.make_relative(action, self.compute_net_load())
 
         return flatten(self._nested_action_space, relative_action)
 
@@ -132,6 +132,29 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         net_load = self.compute_net_load()
 
         return MicrogridSpace.dict_op(absolute_action, net_load, operator.truediv)
+
+    @staticmethod
+    def make_relative(action, net_load):
+        return NetLoadContinuousMicrogridEnv.convert(action, net_load, 'div')
+
+    @staticmethod
+    def make_absolute(action, net_load):
+        return NetLoadContinuousMicrogridEnv.convert(action, net_load, 'mul')
+
+    @staticmethod
+    def convert(action, net_load, op):
+        def _convert(module_act, _op='mul'):
+            module_act = module_act.copy().astype(float)
+
+            if op == 'mul':
+                module_act[-1] *= net_load
+            else:
+                module_act[-1] /= net_load
+
+            return module_act
+
+        return {name: [_convert(act, op) for act in action_list] for name, action_list in action.items()}
+
 
     def _check_action(self, absolute_action):
         if self.check_actions:
