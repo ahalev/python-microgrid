@@ -141,6 +141,9 @@ class CurtailmentModule(BaseMicrogridModule):
             assert self._current_step == self._curtailment_modules.get_attrs('final_step', unique=True).item() - 1
             self._next_max_consumption = 0.0
             return True
+        except ValueError:
+            assert len(self._curtailment_modules) == 0
+            self._next_max_consumption = 0.0
 
     def _state_dict(self):
         return dict()
