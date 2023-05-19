@@ -168,6 +168,9 @@ class CurtailmentModule(BaseMicrogridModule):
 
     @property
     def max_consumption(self):
+        if self._curtailment_modules is None:
+            raise RuntimeError('Must call RenewableCurtailmentModule.setup before usage!')
+
         module_current_step = self._curtailment_modules.get_attrs('current_step', unique=True).item()
         if not self._current_step == module_current_step - 1:
             raise RuntimeError(f'self.current_step={self._current_step} is not one less than curtailment module current'
