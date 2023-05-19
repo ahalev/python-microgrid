@@ -104,6 +104,9 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         return fixed_consumption - flex_production
 
+    def step(self, action):
+        return super().step(action, normalized=False)
+
     def convert_action(self, action, to_microgrid=True):
         # TODO test this. Actions are percentages
         # TODO add a slack module. It should not be in action space and it should be controllable and it
