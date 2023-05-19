@@ -118,6 +118,8 @@ class Microgrid(yaml.YAMLObject):
                                                    loss_load_cost,
                                                    overgeneration_cost)
 
+        self._setup_curtailment()
+
         # TODO (ahalev) transform envs to wrappers, and remove microgrid from attr names)
         self.microgrid_action_space = MicrogridSpace.from_module_spaces(
             self._modules.get_attrs('action_space', 'module_type', as_pandas=False), 'act')
@@ -225,6 +227,11 @@ class Microgrid(yaml.YAMLObject):
                              f'was greater than or equal to final_step.')
 
         return trajectory_func
+
+    def _setup_curtailment(self):
+        for module in self._modules.iterlist():
+            if isinstance(module, CurtailmentModule):
+                module.setup(self._modules)
 
     def reset(self):
         """
