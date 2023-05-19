@@ -79,8 +79,6 @@ class LoadModule(BaseTimeSeriesMicrogridModule):
             absorbed_energy_name='load_met'
         )
 
-        self.name = ('load', None)
-
     def _get_bounds(self):
         _min_obs, _max_obs, _, _ = super()._get_bounds()
         return _min_obs, _max_obs, np.array([]), np.array([])

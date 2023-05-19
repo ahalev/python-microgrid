@@ -91,7 +91,6 @@ class GensetModule(BaseMicrogridModule):
 
         self._current_status, self._goal_status = int(init_start_up), int(init_start_up)
         self._steps_until_up, self._steps_until_down = self._reset_up_down_times()
-        self.name = ('genset', None)
 
         super().__init__(raise_errors,
                          initial_step=initial_step,

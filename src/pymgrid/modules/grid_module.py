@@ -87,7 +87,7 @@ class GridModule(BaseTimeSeriesMicrogridModule):
         time_series = self._check_params(max_import, max_export, time_series)
         self.max_import, self.max_export = max_import, max_export
         self.cost_per_unit_co2 = cost_per_unit_co2
-        self.name = ('grid', None)
+
         super().__init__(
             time_series,
             raise_errors,

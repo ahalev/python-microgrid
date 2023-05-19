@@ -25,7 +25,6 @@ class UnbalancedEnergyModule(BaseMicrogridModule):
                          absorbed_energy_name='overgeneration')
 
         self.loss_load_cost, self.overgeneration_cost = loss_load_cost, overgeneration_cost
-        self.name = ('unbalanced_energy', None)
 
     def update(self, external_energy_change, as_source=False, as_sink=False):
         assert as_source + as_sink == 1, 'Must act as either source or sink but not both or neither.'

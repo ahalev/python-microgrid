@@ -83,8 +83,6 @@ class RenewableModule(BaseTimeSeriesMicrogridModule):
             absorbed_energy_name=None
         )
 
-        self.name = ('renewable', None)
-
     def update(self, external_energy_change, as_source=False, as_sink=False):
         assert as_source, f'Class {self.__class__.__name__} can only be used as a source.'
         assert external_energy_change <= self.current_renewable, f'Cannot provide more than {self.current_renewable}'
