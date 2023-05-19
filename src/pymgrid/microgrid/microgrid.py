@@ -183,10 +183,7 @@ class Microgrid(yaml.YAMLObject):
             raise TypeError("modules must be list-like of modules.")
 
         if add_curtailment_module:
-            curtailment_module = CurtailmentModule(curtailment_cost=curtailment_cost)
-            modules.append(curtailment_module)
-        else:
-            curtailment_module = None
+            modules.append(CurtailmentModule(curtailment_cost=curtailment_cost))
 
         if add_unbalanced_module:
             modules.append(self._get_unbalanced_energy_module(loss_load_cost, overgeneration_cost))
