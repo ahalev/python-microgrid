@@ -42,3 +42,21 @@ A module that cleans up after all the other modules are deployed.
     :toctree: ../api/modules/
 
     UnbalancedEnergyModule
+
+
+Module Functions
+================
+
+Battery Transition Models
+-------------------------
+
+Various battery transition models.
+
+.. currentmodule:: pymgrid.modules.battery.transition_models
+
+.. autosummary::
+    :toctree: ../api/battery_transition_models/
+
+    BatteryTransitionModel
+    BiasedTransitionModel
+    DecayTransitionModel
