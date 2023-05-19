@@ -91,6 +91,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def __init__(self,
                  modules,
+                 add_curtailment_module=True,
                  add_unbalanced_module=True,
                  loss_load_cost=10,
                  overgeneration_cost=2,
@@ -103,6 +104,7 @@ class BaseMicrogridEnv(Microgrid, Env):
                  ):
 
         super().__init__(modules,
+                         add_curtailment_module=add_curtailment_module,
                          add_unbalanced_module=add_unbalanced_module,
                          loss_load_cost=loss_load_cost,
                          overgeneration_cost=overgeneration_cost,
