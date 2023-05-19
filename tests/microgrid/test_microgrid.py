@@ -390,12 +390,9 @@ class TestMicrogridLoadPV(TestCase):
 
         obs, reward, done, info = microgrid.run(control)
         loss_load = self.load_ts[step_number]-self.pv_ts[step_number]
-        overgeneration = -1 * loss_load
-
         loss_load_cost = self.microgrid.modules.balancing[0].loss_load_cost * max(loss_load, 0)
-        overgeneration_cost = self.microgrid.modules.balancing[0].overgeneration_cost * max(overgeneration, 0)
 
-        self.assertEqual(loss_load_cost + overgeneration_cost, -1*reward)
+        self.assertEqual(loss_load_cost, -1*reward)
 
         self.assertEqual(len(microgrid.log), step_number + 1)
         self.assertTrue(all(module in microgrid.log for module in microgrid.modules.names()))
