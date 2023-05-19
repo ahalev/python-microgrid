@@ -1,5 +1,4 @@
 from .battery.battery_module import BatteryModule
-from .curtailment_module import CurtailmentModule
 from .genset_module import GensetModule
 from .grid_module import GridModule
 from .load_module import LoadModule
