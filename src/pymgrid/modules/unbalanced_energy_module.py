@@ -15,7 +15,7 @@ class UnbalancedEnergyModule(BaseMicrogridModule):
                  initial_step=0,
                  loss_load_cost=10,
                  overgeneration_cost=2.0,
-                 normalized_action_bounds=(0, 1)
+                 normalized_action_bounds = (0, 1)
     ):
 
         super().__init__(raise_errors,
