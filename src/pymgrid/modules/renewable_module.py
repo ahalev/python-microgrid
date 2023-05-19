@@ -85,10 +85,6 @@ class RenewableModule(BaseTimeSeriesMicrogridModule):
 
         self.name = ('renewable', None)
 
-    def _get_bounds(self):
-        _min_obs, _max_obs, _, _ = super()._get_bounds()
-        return _min_obs, _max_obs, np.array([]), np.array([])
-
     def update(self, external_energy_change, as_source=False, as_sink=False):
         assert as_source, f'Class {self.__class__.__name__} can only be used as a source.'
 
