@@ -191,12 +191,7 @@ class Microgrid(yaml.YAMLObject):
         if add_unbalanced_module:
             modules.append(self._get_unbalanced_energy_module(loss_load_cost, overgeneration_cost))
 
-        container = ModuleContainer(modules)
-
-        if curtailment_module:
-            curtailment_module.setup(container)
-
-        return container
+        return ModuleContainer(modules)
 
     def _check_trajectory_func(self, trajectory_func):
         if trajectory_func is None:
