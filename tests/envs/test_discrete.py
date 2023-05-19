@@ -22,7 +22,9 @@ class TestDiscreteEnv(TestCase):
 
     def test_init_from_modules(self):
         microgrid = get_modular_microgrid()
-        env = DiscreteMicrogridEnv(microgrid.modules.to_tuples(), add_unbalanced_module=False)
+        env = DiscreteMicrogridEnv(microgrid.modules.to_tuples(),
+                                   add_curtailment_module=False,
+                                   add_unbalanced_module=False)
 
         self.assertEqual(env.modules, microgrid.modules)
         self.assertIsNot(env.modules.to_tuples(), microgrid.modules.to_tuples())
