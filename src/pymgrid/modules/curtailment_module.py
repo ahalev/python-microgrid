@@ -79,7 +79,7 @@ class CurtailmentModule(BaseMicrogridModule):
 
         """
         if self._modules_to_curtail is None:
-            curtailment_modules = module_container.fixed.sources.to_list()
+            curtailment_modules = module_container.fixed.source.to_dict()
 
         else:
             curtailment_modules = []
