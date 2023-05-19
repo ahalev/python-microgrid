@@ -184,6 +184,14 @@ class CurtailmentModule(BaseMicrogridModule):
     def absorption_marginal_cost(self):
         return self.curtailment_cost
 
+    @property
+    def modules_to_curtail(self):
+        return self._modules_to_curtail
+
+    @property
+    def curtailment_modules(self):
+        return self._curtailment_modules
+
     def __repr__(self):
         return f'CurtailmentModule(' \
                f'modules={self._curtailment_modules.get_attrs("name").squeeze(axis=0).values.tolist()})'
