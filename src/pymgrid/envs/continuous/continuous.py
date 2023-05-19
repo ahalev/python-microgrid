@@ -146,7 +146,6 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         return {name: [_convert(act, op) for act in action_list] for name, action_list in action.items()}
 
-
     def _check_action(self, absolute_action):
         if self.check_actions:
             try:
