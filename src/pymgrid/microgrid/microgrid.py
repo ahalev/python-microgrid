@@ -235,13 +235,12 @@ class Microgrid(yaml.YAMLObject):
             Observations from resetting the modules as well as the flushed balance log.
         """
         self._set_trajectory()
-        def reset_args(module): return (self.modules,)  if isinstance(module, CurtailmentModule) else ()
+        self._setup_curtailment()
 
         return {
-            **{name: [module.reset(*reset_args(module)) for module in module_list]
-               for name, module_list in self.modules.iterdict()},
-            **{"balance": self._balance_logger.flush(),
-               "other": self._microgrid_logger.flush()}
+            **{name: [module.reset() for module in module_list] for name, module_list in self.modules.iterdict()},
+            "balance": self._balance_logger.flush(),
+            "other": self._microgrid_logger.flush()
         }
 
     def _set_trajectory(self):
