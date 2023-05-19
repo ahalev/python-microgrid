@@ -1,6 +1,4 @@
-from pymgrid.modules import (
-    LoadModule, RenewableModule, BatteryModule, GridModule, GensetModule, UnbalancedEnergyModule, CurtailmentModule
-)
+from pymgrid.modules import LoadModule, RenewableModule, BatteryModule, GridModule, GensetModule, UnbalancedEnergyModule
 from copy import deepcopy
 import pandas as pd
 import numpy as np
@@ -28,7 +26,7 @@ def get_empty_params():
 
 
 def check_viability(modular):
-    classes = LoadModule, RenewableModule, BatteryModule, GridModule, GensetModule, UnbalancedEnergyModule, CurtailmentModule
+    classes = LoadModule, RenewableModule, BatteryModule, GridModule, GensetModule, UnbalancedEnergyModule
     classes_str = '\n'.join([str(x) for x in classes])
     n_modules_by_cls = dict(zip(classes, [0]*len(classes)))
 
@@ -74,8 +72,6 @@ def add_params_from_module(module, params_dict):
         add_genset_params(module, params_dict)
     elif isinstance(module, UnbalancedEnergyModule):
         add_unbalanced_energy_params(module, params_dict)
-    elif isinstance(module, CurtailmentModule):
-        check_curtailment_params(module)
     else:
         raise ValueError(f'Cannot parse module {module}.')
 
@@ -180,11 +176,6 @@ def add_unbalanced_energy_params(unbalanced_energy_module, params_dict):
                        )
     _add_to_df_actual_generation(params_dict, 'overgeneration')
     _add_to_df_cost(params_dict, 'overgeneration')
-
-
-def check_curtailment_params(curtailment_module):
-    if curtailment_module.curtailment_cost != 0:
-        warn(f'Curtailment cost {curtailment_module.curtailment_cost} will be ignored in conversion to nonmodular.')
 
 
 def _add_empty(params_dict, subdict_name, *keys):
