@@ -461,7 +461,7 @@ def get_subcontainers(modules, set_names=True):
         if set_names:
             name = (module_name, len(d[source_sink_both][module_name]) - 1)
 
-            if not name == module.name or all(x is None for x in module.name):
+            if not name == module.name or not all(x is None for x in module.name):
                 warnings.warn(f"Overwriting module name '{module.name}' with name '{name}'.")
 
             module.name = name
