@@ -310,11 +310,11 @@ class TestMicrogrid(TestCase):
                     self.assertEqual(initial_step, 1)
 
 
-class TestMicrogridLoadPVWithCurtailment(TestCase):
+class TestMicrogridLoadPV(TestCase):
     def setUp(self):
         self.load_ts, self.pv_ts = self.set_ts()
         self.microgrid, self.n_loads, self.n_pvs = self.set_microgrid()
-        self.n_modules = 2 + self.n_loads + self.n_pvs
+        self.n_modules = 1 + self.n_loads + self.n_pvs
 
     def set_ts(self):
         ts = 10 * np.random.rand(100)
@@ -323,7 +323,7 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
     def set_microgrid(self):
         load = LoadModule(time_series=self.load_ts, raise_errors=True)
         pv = RenewableModule(time_series=self.pv_ts, raise_errors=True)
-        return Microgrid([load, pv], add_curtailment_module=True), 1, 1
+        return Microgrid([load, pv]), 1, 1
 
     def test_populated_correctly(self):
         self.assertTrue(hasattr(self.microgrid.modules, 'load'))
@@ -352,7 +352,7 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
 
     def test_sample_action_with_flex(self):
         sampled_action = self.microgrid.sample_action(sample_flex_modules=True)
-        self.assertEqual(len(sampled_action), 2)
+        self.assertEqual(len(sampled_action), 1)
         self.assertIn('balancing', sampled_action)
 
     def test_state_dict(self):
@@ -390,10 +390,12 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
 
         obs, reward, done, info = microgrid.run(control)
         loss_load = self.load_ts[step_number]-self.pv_ts[step_number]
+        overgeneration = -1 * loss_load
 
         loss_load_cost = self.microgrid.modules.balancing[0].loss_load_cost * max(loss_load, 0)
+        overgeneration_cost = self.microgrid.modules.balancing[0].overgeneration_cost * max(overgeneration, 0)
 
-        self.assertEqual(loss_load_cost, -1*reward)
+        self.assertEqual(loss_load_cost + overgeneration_cost, -1*reward)
 
         self.assertEqual(len(microgrid.log), step_number + 1)
         self.assertTrue(all(module in microgrid.log for module in microgrid.modules.names()))
@@ -416,13 +418,13 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
             self.assertEqual(log_entry('load', 'load_met'), load_met)
 
         self.assertEqual(log_entry('renewable',  'renewable_current'), self.pv_ts[step_number])
-        self.assertEqual(log_entry('renewable', 'renewable_used')-log_entry('curtailment', 'curtailment'), load_met)
+        self.assertEqual(log_entry('renewable', 'renewable_used'), load_met)
 
         self.assertEqual(log_entry('balancing', 'loss_load'), loss_load)
 
         self.assertEqual(log_entry('balance', 'reward'), -1 * loss_load_cost)
-        self.assertEqual(log_entry('balance', 'overall_provided_to_microgrid'), self.pv_ts[step_number])
-        self.assertEqual(log_entry('balance', 'overall_absorbed_from_microgrid'), self.pv_ts[step_number])
+        self.assertEqual(log_entry('balance', 'overall_provided_to_microgrid'), self.load_ts[step_number])
+        self.assertEqual(log_entry('balance', 'overall_absorbed_from_microgrid'), self.load_ts[step_number])
         self.assertEqual(log_entry('balance', 'fixed_provided_to_microgrid'), self.pv_ts[step_number])
         self.assertEqual(log_entry('balance', 'fixed_absorbed_from_microgrid'), self.load_ts[step_number])
         self.assertEqual(log_entry('balance', 'controllable_absorbed_from_microgrid'), 0.0)
@@ -441,7 +443,7 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
                 microgrid = self.check_step(microgrid=microgrid, step_number=step)
 
 
-class TestMicrogridLoadExcessPVWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridLoadExcessPV(TestMicrogridLoadPV):
     #  Same as above but pv is greater than load.
     def set_ts(self):
         load_ts = 10*np.random.rand(100)
@@ -449,7 +451,7 @@ class TestMicrogridLoadExcessPVWithCurtailment(TestMicrogridLoadPVWithCurtailmen
         return load_ts, pv_ts
 
 
-class TestMicrogridPVExcessLoadWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridPVExcessLoad(TestMicrogridLoadPV):
     # Load greater than PV.
     def set_ts(self):
         pv_ts = 10 * np.random.rand(100)
@@ -457,7 +459,7 @@ class TestMicrogridPVExcessLoadWithCurtailment(TestMicrogridLoadPVWithCurtailmen
         return load_ts, pv_ts
 
 
-class TestMicrogridTwoLoadsWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridTwoLoads(TestMicrogridLoadPV):
     def set_microgrid(self):
         load_1_ts = self.load_ts*(1-np.random.rand(*self.load_ts.shape))
         load_2_ts = self.load_ts - load_1_ts
@@ -468,10 +470,10 @@ class TestMicrogridTwoLoadsWithCurtailment(TestMicrogridLoadPVWithCurtailment):
         load_1 = LoadModule(time_series=load_1_ts, raise_errors=True)
         load_2 = LoadModule(time_series=load_2_ts, raise_errors=True)
         pv = RenewableModule(time_series=self.pv_ts, raise_errors=True)
-        return Microgrid([load_1, load_2, pv], add_curtailment_module=True), 2, 1
+        return Microgrid([load_1, load_2, pv]), 2, 1
 
 
-class TestMicrogridTwoPVWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridTwoPV(TestMicrogridLoadPV):
     def set_microgrid(self):
         pv_1_ts = self.pv_ts*(1-np.random.rand(*self.pv_ts.shape))
         pv_2_ts = self.pv_ts - pv_1_ts
@@ -482,10 +484,10 @@ class TestMicrogridTwoPVWithCurtailment(TestMicrogridLoadPVWithCurtailment):
         load = LoadModule(time_series=self.load_ts, raise_errors=True)
         pv_1 = RenewableModule(time_series=pv_1_ts, raise_errors=True)
         pv_2 = RenewableModule(time_series=pv_2_ts)
-        return Microgrid([load, pv_1, pv_2], add_curtailment_module=True), 1, 2
+        return Microgrid([load, pv_1, pv_2]), 1, 2
 
 
-class TestMicrogridTwoEachWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridTwoEach(TestMicrogridLoadPV):
     def set_microgrid(self):
         load_1_ts = self.load_ts*(1-np.random.rand(*self.load_ts.shape))
         load_2_ts = self.load_ts - load_1_ts
@@ -503,10 +505,10 @@ class TestMicrogridTwoEachWithCurtailment(TestMicrogridLoadPVWithCurtailment):
         pv_1 = RenewableModule(time_series=pv_1_ts, raise_errors=True)
         pv_2 = RenewableModule(time_series=pv_2_ts)
 
-        return Microgrid([load_1, load_2, pv_1, pv_2], add_curtailment_module=True), 2, 2
+        return Microgrid([load_1, load_2, pv_1, pv_2]), 2, 2
 
 
-class TestMicrogridManyEachWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridManyEach(TestMicrogridLoadPV):
     def set_microgrid(self):
         n_loads = np.random.randint(3, 10)
         n_pvs = np.random.randint(3, 10)
@@ -532,28 +534,27 @@ class TestMicrogridManyEachWithCurtailment(TestMicrogridLoadPVWithCurtailment):
         load_modules = [LoadModule(time_series=ts) for ts in load_ts]
         pv_modules = [RenewableModule(time_series=ts) for ts in pv_ts]
 
-        return Microgrid([*load_modules, *pv_modules], add_curtailment_module=True), n_loads, n_pvs
+        return Microgrid([*load_modules, *pv_modules]), n_loads, n_pvs
 
 
-class TestMicrogridManyEachExcessPV(TestMicrogridManyEachWithCurtailment):
+class TestMicrogridManyEachExcessPV(TestMicrogridManyEach):
     def set_ts(self):
         load_ts = 10*np.random.rand(100)
         pv_ts = load_ts + 5*np.random.rand(100)
         return load_ts, pv_ts
 
 
-class TestMicrogridManyEachExcessLoad(TestMicrogridManyEachWithCurtailment):
+class TestMicrogridManyEachExcessLoad(TestMicrogridManyEach):
     def set_ts(self):
         pv_ts = 10*np.random.rand(100)
         load_ts = pv_ts + 5*np.random.rand(100)
         return load_ts, pv_ts
 
 
-class TestMicrogridRewardShapingWithCurtailment(TestMicrogridLoadPVWithCurtailment):
+class TestMicrogridRewardShaping(TestMicrogridLoadPV):
     def set_microgrid(self):
         original_microgrid, n_loads, n_pvs = super().set_microgrid()
         new_microgrid = Microgrid(original_microgrid.modules.to_tuples(),
-                                  add_curtailment_module=True,
                                   add_unbalanced_module=False,
                                   reward_shaping_func=self.reward_shaping_func)
 
