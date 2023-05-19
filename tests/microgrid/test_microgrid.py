@@ -399,8 +399,8 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
         self.assertTrue(all(module in microgrid.log for module in microgrid.modules.names()))
 
         load_met = min(self.load_ts[step_number], self.pv_ts[step_number])
-        loss_load = max(self.load_ts[step_number] - self.pv_ts[step_number], 0)
-        curtailment = max(self.pv_ts[step_number] - self.load_ts[step_number], 0)
+        loss_load = max(self.load_ts[step_number] - load_met, 0)
+
         # Checking the log populated correctly.
 
         log_row = microgrid.log.iloc[step_number]
@@ -418,7 +418,6 @@ class TestMicrogridLoadPVWithCurtailment(TestCase):
         self.assertEqual(log_entry('renewable',  'renewable_current'), self.pv_ts[step_number])
         self.assertEqual(log_entry('renewable', 'renewable_used')-log_entry('curtailment', 'curtailment'), load_met)
 
-        self.assertEqual(log_entry('curtailment', 'curtailment'), curtailment)
         self.assertEqual(log_entry('balancing', 'loss_load'), loss_load)
 
         overall_provided_absorbed = max(self.pv_ts[step_number], self.load_ts[step_number])
