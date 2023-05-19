@@ -94,9 +94,13 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             fixed_consumption = 0.0
 
         try:
-            flex_production = self.modules.flex.get_attrs('max_production').sum().item()
+            flex_max_prod_marginal_cost = self.modules.flex.get_attrs('max_production', 'marginal_cost')
         except AttributeError:
             flex_production = 0.0
+        else:
+            zero_marginal_cost_flex = flex_max_prod_marginal_cost['marginal_cost'] == 0
+            flex_max_prod = flex_max_prod_marginal_cost.loc[zero_marginal_cost_flex, 'max_production']
+            flex_production = flex_max_prod.sum().item()
 
         return fixed_consumption - flex_production
 
