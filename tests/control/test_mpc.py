@@ -29,7 +29,7 @@ class TestMPC(TestCase):
         self.assertEqual(mpc_output.shape[0], max_steps)
         self.assertEqual(mpc_output[("grid", 0, "grid_import")].values +
                         mpc_output[("battery", 0, "discharge_amount")].values +
-                        mpc_output[("renewable", 0, "renewable_used")].values,
+                        mpc_output[("curtailment", 0, "net_renewable_usage")].values,
                          [load_const] * mpc_output.shape[0]
                         )
 
@@ -128,7 +128,7 @@ class TestMPC(TestCase):
         self.assertEqual(mpc_output[("load_with_name", 0, "load_met")].values, [load_const]*mpc_output.shape[0])
         self.assertEqual(mpc_output[("grid", 0, "grid_import")].values +
                         mpc_output[("battery", 0, "discharge_amount")].values +
-                        mpc_output[("pv_with_name", 0, "renewable_used")].values,
+                        mpc_output[("curtailment", 0, "net_renewable_usage")].values,
                          [load_const] * mpc_output.shape[0]
                         )
         self.assertEqual(mpc_output[("load_with_name", 0, "load_met")].values, [load_const]*mpc_output.shape[0])
