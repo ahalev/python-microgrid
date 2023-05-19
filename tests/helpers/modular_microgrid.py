@@ -15,7 +15,6 @@ def get_modular_microgrid(remove_modules=(),
                           retain_only=None,
                           additional_modules=None,
                           add_unbalanced_module=True,
-                          add_curtailment_module=True,
                           timeseries_length=100,
                           modules_only=False,
                           normalized_action_bounds=(0, 1)):
@@ -64,6 +63,4 @@ def get_modular_microgrid(remove_modules=(),
     if modules_only:
         return modules
 
-    return Microgrid(modules,
-                     add_unbalanced_module=add_unbalanced_module,
-                     add_curtailment_module=add_curtailment_module)
+    return Microgrid(modules, add_unbalanced_module=add_unbalanced_module)
