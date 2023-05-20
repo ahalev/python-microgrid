@@ -94,7 +94,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     def _get_nested_action_space(self):
 
         def extract_box(module_space):
-            return Box(low=0.0, high=2.0, shape=module_space.normalized.shape)
+            return Box(low=0.0, high=1.0, shape=module_space.normalized.shape)
 
         controllable_as = self._modules.controllable.get_attrs('action_space', 'module_type')
 
