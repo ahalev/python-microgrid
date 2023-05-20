@@ -6,6 +6,8 @@ from gym.spaces import Box
 from tests.helpers.test_case import TestCase
 from tests.helpers.modular_microgrid import get_modular_microgrid
 
+from tests.envs.test_discrete import TestDiscreteEnvScenario
+
 from pymgrid.envs import NetLoadContinuousMicrogridEnv
 from pymgrid.modules import RenewableModule
 
@@ -331,7 +333,7 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
 
         expected_absolute_action = {
             'battery': [np.array([5.0])],
-            'genset': [np.array([0, -2.5])],
+            'genset': [np.array([1, -2.5])],
             'grid': [np.array([7.5])]
         }
 
@@ -364,106 +366,116 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
         self.assertEqual(relative_action, expected_relative_action)
 
 
-class TestNetLoadContinuousEnvScenario(TestCase):
+class TestNetLoadContinuousEnvScenario(TestDiscreteEnvScenario):
     microgrid_number = 0
 
     def setUp(self) -> None:
         self.env = NetLoadContinuousMicrogridEnv.from_scenario(microgrid_number=self.microgrid_number)
 
-    def test_run_once(self):
-        env = deepcopy(self.env)
-        # sample environment then get log
-        self.assertEqual(len(env.log), 0)
-        for j in range(10):
-            with self.subTest(step=j):
-                action = env.sample_action(strict_bound=True)
-                env.step(action)
-                self.assertEqual(len(env.log), j+1)
-
-    def test_reset_after_run(self):
-        env = deepcopy(self.env)
-        env.step(env.sample_action(strict_bound=True))
-        env.reset()
-        self.assertEqual(len(env.log), 0)
-
-    def test_run_again_after_reset(self):
-        env = deepcopy(self.env)
-        env.step(env.sample_action(strict_bound=True))
-
-        self.assertEqual(len(env.log), 1)
-
-        env.reset()
-
-        self.assertEqual(len(env.log), 0)
-
-        for j in range(10):
-            with self.subTest(step=j):
-                action = env.sample_action(strict_bound=True)
-                env.step(action)
-                self.assertEqual(len(env.log), j+1)
-
     def test_action_space(self):
+        from gym.spaces import Box
+
         env = deepcopy(self.env)
 
-        n_action_modules = len(env.modules.controllable.sources) + len(env.modules.controllable.source_and_sinks)
+        controllable = len(env.modules.controllable)
         genset_modules = len(env.modules.genset) if hasattr(env.modules, 'genset') else 0
 
-        # TODO write
-        return
+        action_dim = controllable + genset_modules
 
-    def test_simple_observation_keys(self):
-        keys_in_all_scenarios = ['load_current', 'renewable_current']
+        self.assertEqual(env.action_space, Box(low=0, high=1, shape=(action_dim, )))
 
-        env = NetLoadContinuousMicrogridEnv.from_scenario(microgrid_number=self.microgrid_number,
-                                                 observation_keys=keys_in_all_scenarios)
 
-        obs, _, _, _ = env.step(env.action_space.sample())
+class TestNetLoadContinuousEnvScenario1(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 1
 
-        expected_obs = [
-            env.modules['load'].item().state_dict(normalized=True)['load_current'],
-            env.modules['pv'].item().state_dict(normalized=True)['renewable_current']
-        ]
 
-        self.assertEqual(obs.tolist(), expected_obs)
+class TestNetLoadContinuousEnvScenario2(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 2
 
-    def test_set_initial_step(self):
-        env = NetLoadContinuousMicrogridEnv.from_scenario(self.microgrid_number)
-        env = deepcopy(env)
 
-        self.assertEqual(env.initial_step, 0)
+class TestNetLoadContinuousEnvScenario3(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 3
 
-        self.assertEqual(env.initial_step, 0)
-        self.assertEqual(
-            env.modules.get_attrs('initial_step', unique=True, as_pandas=False),
-            {'initial_step': 0}
-        )
 
-        for module_name, module_list in env.modules.iterdict():
-            for n, module in enumerate(module_list):
-                with self.subTest(module_name=module_name, module_num=n):
-                    try:
-                        initial_step = module.initial_step
-                    except AttributeError:
-                        continue
+class TestNetLoadContinuousEnvScenario4(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 4
 
-                    self.assertEqual(initial_step, 0)
 
-        env = deepcopy(env)
+class TestNetLoadContinuousEnvScenario5(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 5
 
-        env.initial_step = 1
 
-        self.assertEqual(env.initial_step, 1)
-        self.assertEqual(
-            env.modules.get_attrs('initial_step', unique=True, as_pandas=False),
-            {'initial_step': 1}
-        )
+class TestNetLoadContinuousEnvScenario6(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 6
 
-        for module_name, module_list in env.modules.iterdict():
-            for n, module in enumerate(module_list):
-                with self.subTest(module_name=module_name, module_num=n):
-                    try:
-                        initial_step = module.initial_step
-                    except AttributeError:
-                        continue
 
-                    self.assertEqual(initial_step, 1)
+class TestNetLoadContinuousEnvScenario7(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 7
+
+
+class TestNetLoadContinuousEnvScenario8(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 8
+
+
+class TestNetLoadContinuousEnvScenario9(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 9
+
+
+class TestNetLoadContinuousEnvScenario10(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 10
+
+
+class TestNetLoadContinuousEnvScenario11(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 11
+
+
+class TestNetLoadContinuousEnvScenario12(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 12
+
+
+class TestNetLoadContinuousEnvScenario13(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 13
+
+
+class TestNetLoadContinuousEnvScenario14(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 14
+
+
+class TestNetLoadContinuousEnvScenario15(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 15
+
+
+class TestNetLoadContinuousEnvScenario16(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 16
+
+
+class TestNetLoadContinuousEnvScenario17(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 17
+
+
+class TestNetLoadContinuousEnvScenario18(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 18
+
+
+class TestNetLoadContinuousEnvScenario19(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 19
+
+
+class TestNetLoadContinuousEnvScenario20(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 20
+
+
+class TestNetLoadContinuousEnvScenario21(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 21
+
+
+class TestNetLoadContinuousEnvScenario22(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 22
+
+
+class TestNetLoadContinuousEnvScenario23(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 23
+
+
+class TestNetLoadContinuousEnvScenario24(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 24
