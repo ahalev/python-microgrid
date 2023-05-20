@@ -291,6 +291,9 @@ class BaseMicrogridEnv(Microgrid, Env):
         """:meta private:"""
         raise RuntimeError('rendering is not possible in Microgrid environments.')
 
+    def sample_action(self, strict_bound=False, sample_flex_modules=False):
+        return self.action_space.sample()
+
     @staticmethod
     def flatten_obs(observation_space, obs):
         return np.concatenate([flatten(observation_space[k], v) for k, v in obs.items()])
