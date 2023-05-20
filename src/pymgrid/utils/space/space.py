@@ -12,7 +12,13 @@ from typing import Union
 def _extract_action_spaces(d):
     controllable = {}
     for module_name, module_list in d.items():
-        controllable_spaces = [v['action_space'] for v in module_list if 'controllable' in v['module_type']]
+        try:
+            module_list = module_list.to_dict()  # module_list is pd.Series
+            controllable_spaces = [act_space for j, act_space in enumerate(module_list['action_space'])
+                                   if 'controllable' in module_list['module_type'][j]]
+        except AttributeError:
+            controllable_spaces = [v['action_space'] for v in module_list if 'controllable' in v['module_type']]
+
         if controllable_spaces:
             controllable[module_name] = controllable_spaces
 
@@ -22,7 +28,12 @@ def _extract_action_spaces(d):
 def _extract_observation_spaces(d):
     obs_spaces = {}
     for module_name, module_list in d.items():
-        spaces = [v['observation_space'] for v in module_list]
+        try:
+            module_list = module_list.to_dict()  # module_list is pd.Series
+            spaces = module_list['observation_space']
+        except AttributeError:
+            spaces = [v['observation_space'] for v in module_list]
+
         if spaces:
             obs_spaces[module_name] = spaces
 
@@ -58,6 +69,11 @@ def _transform_builtins(d, normalized=False):
 
 
 def extract_builtins(d, act_or_obs='act', normalized=False):
+    try:
+        d = d.groupby(level=0, axis=0).agg(list).T
+    except AttributeError:
+        pass
+
     if act_or_obs == 'act':
         spaces = _extract_action_spaces(d)
     elif act_or_obs == 'obs':
