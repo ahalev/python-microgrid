@@ -92,6 +92,10 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
     def _get_nested_action_space(self):
+
+        def extract_box(module_space):
+            return Box(low=0.0, high=2.0, shape=module_space.normalized.shape)
+
         controllable_as = self._modules.controllable.get_attrs('action_space', 'module_type')
 
         if self._slack_module is not None:
