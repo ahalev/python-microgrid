@@ -1,10 +1,10 @@
 import numpy as np
 import operator
 
-from gym.spaces import Box, Dict, Tuple, flatten_space, flatten, unflatten
+from gym.spaces import Box, Dict, Tuple, flatten_space
 
 from pymgrid.envs.base import BaseMicrogridEnv
-from pymgrid.utils.space import MicrogridSpace, extract_builtins
+from pymgrid.utils.space import MicrogridSpace, extract_builtins, flatten, unflatten
 
 
 class ContinuousMicrogridEnv(BaseMicrogridEnv):
