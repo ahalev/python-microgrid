@@ -206,9 +206,6 @@ class BaseMicrogridModule(yaml.YAMLObject):
         """
 
         assert energy_demand >= 0
-        assert self.is_source, f'step() was called with positive energy (source) for module {self} but ' \
-                               f'module is not a source and ' \
-                               f'can only be called with negative energy.'
 
         if self.module_type[-1] == 'fixed':
             return self.update(None, as_source=True)
