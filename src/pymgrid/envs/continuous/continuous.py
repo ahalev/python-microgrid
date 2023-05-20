@@ -97,7 +97,10 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             return Box(low=0.0, high=2.0, shape=module_space.normalized.shape)
 
         controllable_as = self._modules.controllable.get_attrs('action_space', 'module_type')
-        controllable_as = controllable_as.drop(index=self._slack_module, errors='ignore')
+
+        if self._slack_module is not None:
+            controllable_as = controllable_as.drop(index=self._slack_module)
+
         controllable_as['action_space'] = controllable_as['action_space'].apply(extract_box)
 
         as_builtins = extract_builtins(controllable_as, 'act')
