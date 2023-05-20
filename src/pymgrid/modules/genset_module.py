@@ -212,7 +212,9 @@ class GensetModule(BaseMicrogridModule):
         return self._get_fuel_cost(production) + self.get_co2_cost(production)
 
     def update(self, external_energy_change, as_source=False, as_sink=False):
-        assert as_source, 'This module may only act as a source.'
+        assert as_source or external_energy_change == 0.0, f'step() was called with positive energy (source) for ' \
+                                                           f'module {self} but module is not a source and ' \
+                                                           f'can only be called with negative energy.'
 
         reward = -1.0 * self.get_cost(external_energy_change)
         info = {'provided_energy': external_energy_change,
