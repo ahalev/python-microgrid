@@ -92,16 +92,16 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
     def _get_nested_action_space(self):
-        as_builtins_unnormalized = extract_builtins(self._modules.get_attrs('action_space', 'module_type', as_pandas=False), 'act')
-        as_builtins_normalized = Dict({
-            name: Tuple([Box(low=0, high=1, shape=action_space.shape) for action_space in as_list])
-            for name, as_list in as_builtins_unnormalized.items()
-        })
 
-        microgrid_space = MicrogridSpace(as_builtins_unnormalized, as_builtins_normalized)
+        def extract_box(module_space):
+            return Box(low=0.0, high=2.0, shape=module_space.normalized.shape)
 
-        return Dict({name: Tuple([Box(low=0, high=1, shape=module.action_space.shape) for module in modules_list])
-                     for name, modules_list in self.modules.controllable.iterdict()})
+        controllable_as = self._modules.controllable.get_attrs('action_space', 'module_type')
+        controllable_as = controllable_as.drop(index=self._slack_module, errors='ignore')
+        controllable_as['action_space'] = controllable_as['action_space'].apply(extract_box)
+
+        as_builtins = extract_builtins(controllable_as, 'act')
+        return as_builtins
 
     def _set_slack_module(self):
         if self._slack_module is None:
