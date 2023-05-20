@@ -216,7 +216,6 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
         self.assertEqual(relative_action, expected_relative_action)
 
     def test_convert_action_to_absolute_zero_net_load(self):
-        # TODO fix
         new_renewable_module = RenewableModule(time_series=60 * np.ones(100))
         microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
 
@@ -230,7 +229,7 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
             'grid': [np.array([0])]
         }
 
-        relative_action = np.array([0.5, 0, 0.25, 0.25])
+        relative_action = np.array([0.5, 0, 0.25])
 
         absolute_action = env.convert_action(relative_action)
 
@@ -240,7 +239,6 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
                     self.assertEqual(act, absolute_action[module_name][module_num])
 
     def test_convert_action_to_relative_zero_net_load(self):
-        # TODO fix
         new_renewable_module = RenewableModule(time_series=60 * np.ones(100))
         microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
 
@@ -248,7 +246,7 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
 
         self.assertEqual(env.compute_net_load(), 0.0)
 
-        expected_relative_action = np.array([0.0, 0.0, 0.0, 0.0])
+        expected_relative_action = np.array([0.0, 0.0, 0.0])
 
         absolute_action = {
             'battery': [np.array([5])],
