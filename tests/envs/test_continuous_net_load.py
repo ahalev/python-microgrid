@@ -1,6 +1,7 @@
 import numpy as np
 
 from copy import deepcopy
+from gym.spaces import Box
 
 from tests.helpers.test_case import TestCase
 from tests.helpers.modular_microgrid import get_modular_microgrid
@@ -20,6 +21,17 @@ class TestNetLoadContinuousEnv(TestCase):
         n_obs = sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
 
         self.assertEqual(env.observation_space.shape, (n_obs,))
+
+    def test_action_space(self):
+        microgrid = get_modular_microgrid()
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid)
+
+        n_actions = len(env.modules.controllable)
+
+        if 'genset' in env.modules:
+            n_actions += len(env.modules.genset)
+
+        self.assertEqual(env.action_space, Box(low=0, high=1, shape=(n_actions, )))
 
     def test_net_load(self):
         microgrid = get_modular_microgrid()
@@ -169,6 +181,17 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
         n_obs = sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
 
         self.assertEqual(env.observation_space.shape, (n_obs,))
+
+    def test_action_space(self):
+        microgrid = get_modular_microgrid()
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        n_actions = len(env.modules.controllable) - 1 # subtract grid, not in action space
+
+        if 'genset' in env.modules:
+            n_actions += len(env.modules.genset)
+
+        self.assertEqual(env.action_space, Box(low=0, high=1, shape=(n_actions, )))
 
     def test_net_load(self):
         microgrid = get_modular_microgrid()
