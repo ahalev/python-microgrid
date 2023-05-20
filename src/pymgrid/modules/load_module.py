@@ -84,7 +84,9 @@ class LoadModule(BaseTimeSeriesMicrogridModule):
         return _min_obs, _max_obs, np.array([]), np.array([])
 
     def update(self, external_energy_change, as_source=False, as_sink=False):
-        assert as_sink, f'Class {self.__class__.__name__} is a sink.'
+        assert as_sink or external_energy_change == 0.0, f'step() was called with positive energy (source) for ' \
+                                                           f'module {self} but module is not a source and ' \
+                                                           f'can only be called with negative energy.'
 
         info = {'absorbed_energy': self.current_load}
 
