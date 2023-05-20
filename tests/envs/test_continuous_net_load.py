@@ -176,9 +176,14 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
 
         self.assertEqual(env.slack_module, ('grid', 0))
 
-        self.assertIn('battery', list(env._nested_action_space.keys()))
-        self.assertIn('genset', list(env._nested_action_space.keys()))
-        self.assertNotIn('grid', list(env._nested_action_space.keys()))
+        try:
+            action_space_keys = list(env._nested_action_space.keys())
+        except AttributeError: # Dict object does not subclass mapping in old version of gym
+            action_space_keys = list(env._nested_action_space.spaces.keys())
+
+        self.assertIn('battery', action_space_keys)
+        self.assertIn('genset', action_space_keys)
+        self.assertNotIn('grid', action_space_keys)
 
         n_obs = sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
 
