@@ -219,7 +219,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
         action = self.convert_action(action)
-        self._log_action(action)
+        self._log_action(action, normalized)
 
         obs, reward, done, info = self.run(action, normalized=normalized)
         obs = self._get_obs(obs)
@@ -247,13 +247,13 @@ class BaseMicrogridEnv(Microgrid, Env):
         """
         pass
 
-    def _log_action(self, action):
+    def _log_action(self, action, normalized):
         d = {}
 
-        log_items = [
-            ('converted_action', action),
-            ('denormalized_converted_action', self.microgrid_action_space.denormalize(action))
-        ]
+        log_items = [('converted_action', action)]
+
+        if normalized:
+            log_items.append(('denormalized_converted_action', self.microgrid_action_space.denormalize(action)))
 
         for key, action in log_items:
             for module, action_list in action.items():
