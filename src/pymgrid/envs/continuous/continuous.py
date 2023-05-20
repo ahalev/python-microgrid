@@ -58,7 +58,36 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     _nested_action_space = None
     check_actions = True
 
+    def __init__(self,
+                 modules,
+                 slack_module=None,
+                 add_unbalanced_module=True,
+                 loss_load_cost=10,
+                 overgeneration_cost=2,
+                 reward_shaping_func=None,
+                 trajectory_func=None,
+                 flat_spaces=True,
+                 observation_keys=None,
+                 step_callback=None,
+                 reset_callback=None
+                 ):
+
+        self._slack_module = slack_module
+        self._slack_module_ref = None
+
+        super().__init__(modules,
+                         add_unbalanced_module=add_unbalanced_module,
+                         loss_load_cost=loss_load_cost,
+                         overgeneration_cost=overgeneration_cost,
+                         reward_shaping_func=reward_shaping_func,
+                         trajectory_func=trajectory_func,
+                         flat_spaces=flat_spaces,
+                         observation_keys=observation_keys,
+                         step_callback=step_callback,
+                         reset_callback=reset_callback)
+
     def _get_action_space(self, remove_redundant_actions=False):
+        self._set_slack_module()
         self._nested_action_space = self._get_nested_action_space()
         return flatten_space(self._nested_action_space) if self._flat_spaces else self._nested_action_space
 
@@ -73,6 +102,18 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         return Dict({name: Tuple([Box(low=0, high=1, shape=module.action_space.shape) for module in modules_list])
                      for name, modules_list in self.modules.controllable.iterdict()})
+
+    def _set_slack_module(self):
+        if self._slack_module is None:
+            return
+
+        controllable_modules_dict = self.modules.controllable.to_dict(orient='records')
+
+        try:
+            self._slack_module_ref = controllable_modules_dict[self._slack_module]
+        except KeyError:
+            msg = f"No module '{self._slack_module}' amongst controllable candidates {controllable_modules_dict}"
+            raise NameError(msg)
 
     def compute_net_load(self):
         """
@@ -160,3 +201,16 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
                     _action = clipped
                 else:
                     raise
+
+    @property
+    def slack_module(self):
+        return self._slack_module
+
+    @slack_module.setter
+    def slack_module(self, value):
+        self._slack_module = value
+        self._set_slack_module()
+
+    @property
+    def slack_module_ref(self):
+        return self._slack_module_ref
