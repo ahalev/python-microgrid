@@ -40,7 +40,7 @@ class Container(UserDict):
             l.extend(raw_container.to_list())
         return l
 
-    def to_dict(self):
+    def to_dict(self, orient='list'):
         """
         Get the modules as a dictionary.
 
@@ -50,12 +50,29 @@ class Container(UserDict):
             Dictionary with module names as keys, modules as values.
 
         """
+
+        def _dict_update_vals(raw_container):
+            if orient == 'list':
+                return raw_container
+            elif orient == 'records':
+                return {(name, n): module for name, mod_list in raw_container.items() for n, module in
+                        enumerate(mod_list)}
+
+        def _list_update_vals(key, raw_container):
+            if orient == 'list':
+                return {key: raw_container}
+            elif orient == 'records':
+                return {(key, n): module for n, module in enumerate(raw_container)}
+
+            raise ValueError(f"Unrecognized orient '{orient}'")
+
         d = dict()
+
         for k, raw_container in self.containers.items():
             if isinstance(raw_container, ModuleList):
-                d[k] = raw_container
+                d.update(_list_update_vals(k, raw_container))
             else:
-                d.update(raw_container)
+                d.update(_dict_update_vals(raw_container))
 
         return d
 
