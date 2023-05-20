@@ -110,6 +110,157 @@ class TestNetLoadContinuousEnv(TestCase):
         relative_action = env.convert_action(absolute_action, to_microgrid=False)
         self.assertEqual(relative_action, expected_relative_action)
 
+    def test_convert_action_to_absolute_negative_net_load(self):
+        new_renewable_module = RenewableModule(time_series=70*np.ones(100))
+        microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
+
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid)
+
+        self.assertEqual(env.compute_net_load(), -10.0)
+
+        expected_absolute_action = {
+            'battery': [np.array([-5])],
+            'genset': [np.array([0, -2.5])],
+            'grid': [np.array([-2.5])]
+        }
+
+        relative_action = np.array([0.5, 0, 0.25, 0.25])
+        absolute_action = env.convert_action(relative_action)
+
+        for module_name, action_list in expected_absolute_action.items():
+            for module_num, act in enumerate(action_list):
+                with self.subTest(module_name=module_name, module_num=module_num):
+                    self.assertEqual(act, absolute_action[module_name][module_num])
+
+    def test_convert_action_to_relative_negative_net_load(self):
+        new_renewable_module = RenewableModule(time_series=70*np.ones(100))
+        microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
+
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid)
+
+        self.assertEqual(env.compute_net_load(), -10.0)
+
+        expected_relative_action = np.array([0.5, 0, 0.25, 0.25])
+
+        absolute_action = {
+            'battery': [np.array([-5])],
+            'genset': [np.array([0, -2.5])],
+            'grid': [np.array([-2.5])]
+        }
+
+        relative_action = env.convert_action(absolute_action, to_microgrid=False)
+        self.assertEqual(relative_action, expected_relative_action)
+
+
+class TestNetLoadContinuousEnvSlackModule(TestCase):
+    def test_init_from_microgrid(self):
+        microgrid = get_modular_microgrid()
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        self.assertEqual(env.modules, microgrid.modules)
+        self.assertIsNot(env.modules.to_tuples(), microgrid.modules.to_tuples())
+
+        self.assertEqual(env.slack_module, ('grid', 0))
+
+        self.assertIn('battery', list(env._nested_action_space.keys()))
+        self.assertIn('genset', list(env._nested_action_space.keys()))
+        self.assertNotIn('grid', list(env._nested_action_space.keys()))
+
+        n_obs = sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
+
+        self.assertEqual(env.observation_space.shape, (n_obs,))
+
+    def test_net_load(self):
+        microgrid = get_modular_microgrid()
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        net_load = 10
+
+        self.assertEqual(
+            microgrid.modules.load.item().current_load - microgrid.modules.renewable.item().current_renewable, net_load)
+
+        self.assertEqual(env.compute_net_load(), net_load)
+
+    def test_convert_action_to_absolute(self):
+        microgrid = get_modular_microgrid()
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        expected_absolute_action = {
+            'battery': [np.array([5])],
+            'genset': [np.array([0, 2.5])],
+            'grid': [np.array([2.5])]
+        }
+
+        relative_action = np.array([0.5, 0, 0.25])
+
+        absolute_action = env.convert_action(relative_action)
+
+        for module_name, action_list in expected_absolute_action.items():
+            for module_num, act in enumerate(action_list):
+                with self.subTest(module_name=module_name, module_num=module_num):
+                    self.assertEqual(act, absolute_action[module_name][module_num])
+
+    def test_convert_action_to_relative(self):
+        microgrid = get_modular_microgrid()
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        expected_relative_action = np.array([0.5, 0, 0.25])
+
+        absolute_action = {
+            'battery': [np.array([5])],
+            'genset': [np.array([0, 2.5])],
+            'grid': [np.array([2.5])]
+        }
+
+        relative_action = env.convert_action(absolute_action, to_microgrid=False)
+        self.assertEqual(relative_action, expected_relative_action)
+
+    def test_convert_action_to_absolute_zero_net_load(self):
+        # TODO fix
+        new_renewable_module = RenewableModule(time_series=60 * np.ones(100))
+        microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
+
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        self.assertEqual(env.compute_net_load(), 0.0)
+
+        expected_absolute_action = {
+            'battery': [np.array([0])],
+            'genset': [np.array([0, 0])],
+            'grid': [np.array([0])]
+        }
+
+        relative_action = np.array([0.5, 0, 0.25, 0.25])
+
+        absolute_action = env.convert_action(relative_action)
+
+        for module_name, action_list in expected_absolute_action.items():
+            for module_num, act in enumerate(action_list):
+                with self.subTest(module_name=module_name, module_num=module_num):
+                    self.assertEqual(act, absolute_action[module_name][module_num])
+
+    def test_convert_action_to_relative_zero_net_load(self):
+        # TODO fix
+        new_renewable_module = RenewableModule(time_series=60 * np.ones(100))
+        microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
+
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=('grid', 0))
+
+        self.assertEqual(env.compute_net_load(), 0.0)
+
+        expected_relative_action = np.array([0.0, 0.0, 0.0, 0.0])
+
+        absolute_action = {
+            'battery': [np.array([5])],
+            'genset': [np.array([0, 2.5])],
+            'grid': [np.array([2.5])]
+        }
+
+        relative_action = env.convert_action(absolute_action, to_microgrid=False)
+        self.assertEqual(relative_action, expected_relative_action)
+
+        # TODO write convert action tests for negative net load
+
 
 class TestNetLoadContinuousEnvScenario(TestCase):
     microgrid_number = 0
