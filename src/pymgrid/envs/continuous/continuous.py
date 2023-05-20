@@ -155,16 +155,18 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         # TODO add a slack module. It should not be in action space and it should be controllable and it
         # should be given an absolute action to balance the rest.
 
+        net_load = self.compute_net_load()
+
         if to_microgrid:
             relative_action = unflatten(self._nested_action_space, action)
-            absolute_action = self.make_absolute(relative_action, self.compute_net_load())
 
+            absolute_action = self.make_absolute(relative_action, net_load)
+            absolute_action = self.add_slack(absolute_action, net_load)
             self._check_action(absolute_action)
-
             return absolute_action
 
-        relative_action = self.make_relative(action, self.compute_net_load())
-
+        self._check_action(action)
+        relative_action = self.make_relative(action, net_load)
         return flatten(self._nested_action_space, relative_action)
 
     @staticmethod
@@ -191,6 +193,25 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             return module_act
 
         return {name: [_convert(act, op) for act in action_list] for name, action_list in action.items()}
+
+    def add_slack(self, action, net_load):
+        if self._slack_module is None:
+            return action
+
+        slack_action = np.ones(self._slack_module_ref.action_space.shape)
+        current_prod = sum([act[-1] for act_list in action.values() for act in act_list])
+        remaining_net_load = net_load - current_prod
+        slack_action[-1] = remaining_net_load
+
+        module_name, module_num = self._slack_module
+
+        try:
+            action[module_name].insert(module_num, slack_action)
+        except KeyError:
+            assert module_num == 0
+            action[module_name] = [slack_action]
+
+        return action
 
     def _check_action(self, absolute_action):
         if self.check_actions:
