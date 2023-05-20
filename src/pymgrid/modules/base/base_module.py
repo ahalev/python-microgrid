@@ -627,14 +627,13 @@ class BaseMicrogridModule(yaml.YAMLObject):
         Maximum amount of production at the current time step.
 
         Must be defined in any child class that is a source.
-        If the module is not a source, this value is irrelevant.
 
         Returns
         -------
         float
 
         """
-        return NotImplemented
+        return 0.0
 
     @property
     def max_consumption(self):
@@ -642,14 +641,13 @@ class BaseMicrogridModule(yaml.YAMLObject):
         Maximum amount of consumption at the current time step.
 
         Must be defined in any child class that is a sink.
-        If the module is not a sink, this value is irrelevant.
 
         Returns
         -------
         float
 
         """
-        return NotImplemented
+        return 0.0
 
     @property
     def marginal_cost(self):
