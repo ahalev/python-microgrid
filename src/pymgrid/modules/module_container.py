@@ -118,6 +118,10 @@ class Container(UserDict):
         for name, modules in self.to_dict().items():
             yield name, modules
 
+    def iteritems(self):
+        for name, module in self.to_dict(orient='records').items():
+            yield name, module
+
     def get_attrs(self, *attrs, unique=False, as_pandas=True):
         """
         Get module attributes as a dictionary or pandas object.
