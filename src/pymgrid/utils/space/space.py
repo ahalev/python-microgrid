@@ -60,6 +60,8 @@ def _transform_builtins(d, normalized=False):
         for v in d:
             if isinstance(v, _PymgridSpace):
                 transformed.append(v[space_key])
+            elif isinstance(v, Space):
+                transformed.append(v)
             else:
                 transformed.append(_transform_builtins(v, normalized=normalized))
 
