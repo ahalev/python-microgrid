@@ -10,12 +10,9 @@ from pymgrid.modules import RenewableModule
 
 
 class TestNetLoadContinuousEnv(TestCase):
-    microgrid = get_modular_microgrid()
-    env = NetLoadContinuousMicrogridEnv(microgrid)
-
     def test_init_from_microgrid(self):
         microgrid = get_modular_microgrid()
-        env = NetLoadContinuousMicrogridEnv(microgrid)
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid)
 
         self.assertEqual(env.modules, microgrid.modules)
         self.assertIsNot(env.modules.to_tuples(), microgrid.modules.to_tuples())
