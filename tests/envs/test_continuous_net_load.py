@@ -10,6 +10,7 @@ from tests.envs.test_discrete import TestDiscreteEnvScenario
 
 from pymgrid.envs import NetLoadContinuousMicrogridEnv
 from pymgrid.modules import RenewableModule
+from pymgrid import Microgrid
 
 
 class TestNetLoadContinuousEnv(TestCase):
@@ -483,4 +484,136 @@ class TestNetLoadContinuousEnvScenario23(TestNetLoadContinuousEnvScenario):
 
 
 class TestNetLoadContinuousEnvScenario24(TestNetLoadContinuousEnvScenario):
+    microgrid_number = 24
+
+
+class TestNetLoadContinuousEnvSlackScenario(TestDiscreteEnvScenario):
+    microgrid_number = 0
+
+    def setUp(self) -> None:
+        microgrid = Microgrid.from_scenario(self.microgrid_number)
+        self.slack_module = ('grid', 0) if hasattr(microgrid.modules, 'grid') else ('genset', 0)
+
+        self.env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, slack_module=self.slack_module)
+
+    def test_module_existence(self):
+        try:
+            grid = self.env.modules.grid.item()
+        except AttributeError:
+            pass
+        else:
+            if grid.weak_grid:
+                self.assertTrue(hasattr(self.env.modules, 'genset'))
+
+            if hasattr(self.env.modules, 'genset'):
+                self.assertLessEqual(grid.marginal_cost, self.env.modules.genset.item().marginal_cost)
+
+
+    def test_action_space(self):
+        from gym.spaces import Box
+
+        env = deepcopy(self.env)
+
+        controllable = len(env.modules.controllable)
+        genset_modules = len(env.modules.genset) if hasattr(env.modules, 'genset') else 0
+
+        action_dim = controllable + genset_modules
+
+        if 'genset' in self.slack_module:
+            action_dim -= 2
+        else:
+            action_dim -= 1
+
+        self.assertEqual(env.action_space, Box(low=0, high=1, shape=(action_dim, )))
+
+
+class TestNetLoadContinuousEnvSlackScenario2(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 2
+
+
+class TestNetLoadContinuousEnvSlackScenario3(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 3
+
+
+class TestNetLoadContinuousEnvSlackScenario4(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 4
+
+
+class TestNetLoadContinuousEnvSlackScenario5(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 5
+
+
+class TestNetLoadContinuousEnvSlackScenario6(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 6
+
+
+class TestNetLoadContinuousEnvSlackScenario7(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 7
+
+
+class TestNetLoadContinuousEnvSlackScenario8(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 8
+
+
+class TestNetLoadContinuousEnvSlackScenario9(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 9
+
+
+class TestNetLoadContinuousEnvSlackScenario10(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 10
+
+
+class TestNetLoadContinuousEnvSlackScenario11(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 11
+
+
+class TestNetLoadContinuousEnvSlackScenario12(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 12
+
+
+class TestNetLoadContinuousEnvSlackScenario13(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 13
+
+
+class TestNetLoadContinuousEnvSlackScenario14(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 14
+
+
+class TestNetLoadContinuousEnvSlackScenario15(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 15
+
+
+class TestNetLoadContinuousEnvSlackScenario16(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 16
+
+
+class TestNetLoadContinuousEnvSlackScenario17(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 17
+
+
+class TestNetLoadContinuousEnvSlackScenario18(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 18
+
+
+class TestNetLoadContinuousEnvSlackScenario19(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 19
+
+
+class TestNetLoadContinuousEnvSlackScenario20(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 20
+
+
+class TestNetLoadContinuousEnvSlackScenario21(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 21
+
+
+class TestNetLoadContinuousEnvSlackScenario22(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 22
+
+
+class TestNetLoadContinuousEnvSlackScenario23(TestNetLoadContinuousEnvSlackScenario):
+    microgrid_number = 23
+
+
+class TestNetLoadContinuousEnvSlackScenario24(TestNetLoadContinuousEnvSlackScenario):
     microgrid_number = 24
