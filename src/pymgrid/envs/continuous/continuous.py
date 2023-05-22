@@ -112,11 +112,22 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         controllable_modules_dict = self.modules.controllable.to_dict(orient='records')
 
+        msg = ''
+
         try:
             self._slack_module_ref = controllable_modules_dict[self._slack_module]
         except KeyError:
-            msg = f"No module '{self._slack_module}' amongst controllable candidates {controllable_modules_dict}"
-            raise NameError(msg)
+            controllable_modules_dict_lists = self.modules.controllable.to_dict()
+            try:
+                self._slack_module_ref = controllable_modules_dict_lists[self._slack_module].item()
+                self._slack_module = self._slack_module_ref.name
+            except ValueError:
+                msg = f"Module name {self._slack_module} does not point to one controllable candidate."
+            except KeyError:
+                msg = f"No module '{self._slack_module}' amongst controllable candidates {controllable_modules_dict}"
+
+            if msg:
+                raise NameError(msg)
 
     def compute_net_load(self):
         """
