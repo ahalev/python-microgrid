@@ -405,6 +405,25 @@ class BaseMicrogridModule(yaml.YAMLObject):
         if obs:
             return self._observation_space.denormalize(value)
 
+    def dynamic_action_space(self):
+        """
+        An action space bounded by the current step's maximum consumption and production.
+
+        This is useful for checking if an action satisfies production or consumption limits in a given step.
+        It can also be used for clipping actions to these bounds by using :meth:`.ModuleSpace.clip`.
+
+        Returns
+        -------
+
+        action_space : :class:`.ModuleSpace`
+            A space with bounds for the current step.
+
+        """
+        return ModuleSpace(unnormalized_low=-1*self.max_consumption,
+                           unnormalized_high=self.max_production,
+                           normalized_bounds=self.normalized_action_bounds,
+                           shape=self._action_space.shape)
+
     def log_dict(self):
         """
         Module's log as a dict.
