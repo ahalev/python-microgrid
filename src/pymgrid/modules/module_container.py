@@ -122,7 +122,7 @@ class Container(UserDict):
         for name, module in self.to_dict(orient='records').items():
             yield name, module
 
-    def get_attrs(self, *attrs, unique=False, as_pandas=True):
+    def get_attrs(self, *attrs, unique=False, as_pandas=True, drop_attr_names=False):
         """
         Get module attributes as a dictionary or pandas object.
 
@@ -151,6 +151,9 @@ class Container(UserDict):
             If ``unique``, the unique value of the modules containing the value will be returned.
             Otherwise, ``NotImplemented`` will fill in missing values.
 
+        drop_attr_names : bool, default False
+            Whether to drop attribute names.
+
         Returns
         -------
         d : dict or pd.DataFrame or pd.Series
@@ -174,10 +177,15 @@ class Container(UserDict):
         if not attrs:
             raise ValueError('Missing attrs to get.')
 
+        def getattr_func(module, _attrs):
+            if drop_attr_names:
+                return [getattr(module, attr, NotImplemented) for attr in _attrs]
+            return {attr: getattr(module, attr, NotImplemented) for attr in _attrs}
+
         d = dict()
         for k, raw_container in self.containers.items():
             d.update({
-                name: [{attr: getattr(module, attr, NotImplemented) for attr in attrs} for module in module_list]
+                name: [getattr_func(module, attrs) for module in module_list]
                 for name, module_list in raw_container.items()
             })
 
