@@ -214,7 +214,7 @@ class _PymgridSpace(Space):
         Parameters
         ----------
         val : np.ndarray or dict[str, list[np.ndarray]]
-            Value to clip. Numpy array if isinstance(self, :class:`.ModuleSpace`) and a
+            Value to clip. Numpy array if ``isinstance(self, :class:`.ModuleSpace`)`` and a
             dict if ``isinstance(self, :class:`.MicrogridSpace`).``
 
         low : np.ndarray,  dict[str, list[np.ndarray]] or None, default None
@@ -227,7 +227,7 @@ class _PymgridSpace(Space):
             Space from which to select lower and upper bounds.
 
         normalized : bool or None, default None
-            Whether to select bounds from :attr:`_PymgridSpace.normalized` or `:attr:_PymgridSpace.unnormalized`.
+            Whether to select bounds from ``self.normalized`` or ``self.unnormalized``.
 
         Returns
         -------
