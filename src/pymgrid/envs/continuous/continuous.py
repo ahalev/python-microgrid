@@ -168,6 +168,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             relative_action = unflatten(self._nested_action_space, action)
 
             absolute_action = self.make_absolute(relative_action, net_load)
+            absolute_action = self.clip_action(absolute_action)
             absolute_action = self.add_slack(absolute_action, net_load)
             self._check_action(absolute_action)
             return absolute_action
@@ -200,6 +201,14 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             return module_act
 
         return {name: [_convert(act, op) for act in action_list] for name, action_list in action.items()}
+
+    def clip_action(self, action):
+        for module_name, module_list in action.items():
+            for module_num, act in enumerate(module_list):
+                dynamic_action_space = self.modules[(module_name, module_num)].dynamic_action_space()
+                action[module_name][module_num] = dynamic_action_space.clip(act, normalized=False)
+
+        return action
 
     def add_slack(self, action, net_load):
         if self._slack_module is None:
