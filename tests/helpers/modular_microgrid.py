@@ -40,7 +40,7 @@ def get_modular_microgrid(remove_modules=(),
                         normalized_action_bounds=normalized_action_bounds),
 
         grid=GridModule(max_import=100,
-                        max_export=0,
+                        max_export=100,
                         time_series=np.ones((timeseries_length, 3)),
                         normalized_action_bounds=normalized_action_bounds,
                         raise_errors=True)
