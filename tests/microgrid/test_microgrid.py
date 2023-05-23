@@ -76,8 +76,8 @@ class TestMicrogrid(TestCase):
         microgrid = get_modular_microgrid(normalized_action_bounds=[-2, 3])
 
         actions = [
-            {'battery': [-50], 'genset': [np.array([0,0])], 'grid': [0]},
-            {'battery': [0], 'genset': [np.array([0.5, 25])], 'grid': [50]},
+            {'battery': [-50], 'genset': [np.array([0,0])], 'grid': [-100]},
+            {'battery': [0], 'genset': [np.array([0.5, 25])], 'grid': [0]},
             {'battery': [50], 'genset': [np.array([1, 50])], 'grid': [100]},
             {'battery': [50], 'genset': [np.array([0, 50])], 'grid': [100]}
         ]
@@ -106,8 +106,8 @@ class TestMicrogrid(TestCase):
         ]
 
         denormalized_actions = [
-            {'battery': [-50], 'genset': [np.array([0,0])], 'grid': [0]},
-            {'battery': [0], 'genset': [np.array([0.5, 25])], 'grid': [50]},
+            {'battery': [-50], 'genset': [np.array([0,0])], 'grid': [-100]},
+            {'battery': [0], 'genset': [np.array([0.5, 25])], 'grid': [0]},
             {'battery': [50], 'genset': [np.array([1, 50])], 'grid': [100]},
             {'battery': [50], 'genset': [np.array([0, 50])], 'grid': [100]}
         ]
@@ -168,7 +168,7 @@ class TestMicrogrid(TestCase):
     def test_action_space_clip_up_unnormalized(self):
         microgrid = get_modular_microgrid(normalized_action_bounds=[0, 2])
 
-        action = {'battery': [np.array([-60])], 'genset': [np.array([-0.1, -0.1])], 'grid': [np.array([-10])]}
+        action = {'battery': [np.array([-60])], 'genset': [np.array([-0.1, -0.1])], 'grid': [np.array([-110])]}
 
         clipped = microgrid.microgrid_action_space.clip(action, normalized=False)
 
