@@ -193,7 +193,48 @@ class _PymgridSpace(Space):
 
         raise KeyError(item)
 
-    def clip(self, val, *, low=None, high=None, normalized=None, space=None):
+    def clip(self, val, *, low=None, high=None,  space=None, normalized=None):
+        """
+        Clip a value into a lower and upper bound.
+
+        The lower and upper bound are defined by the keyword argument ``low``, ``high``, ``normalized``, and ``space``.
+
+        * If ``low`` and ``high`` are passed, ``val`` is clipped to the range ``[low, high]``.
+
+        * Otherwise, if ``space`` is passed, ``val is clipped to the range ``[space.low, space.high]``.
+
+        * Otherwise, if normalized is passed:
+
+            * If ``normalized == True``, ``val is clipped to the range
+            ``[space.normalized.low, space.normalized.high]``
+
+            If ``normalized == False``, ``val is clipped to the range
+            ``[space.unnormalized.low, space.unnormalized.high]``
+
+        Parameters
+        ----------
+        val : np.ndarray or dict[str, list[np.ndarray]]
+            Value to clip. Numpy array if isinstance(self, :class:`.ModuleSpace`) and a
+            dict if ``isinstance(self, :class:`.MicrogridSpace`).``
+
+        low : np.ndarray,  dict[str, list[np.ndarray]] or None, default None
+            Value to define lower bound or None.
+
+        high : np.ndarray,  dict[str, list[np.ndarray]] or None, default None
+            Value to define upper bound or None.
+
+        space : gym.Space or None, default None
+            Space from which to select lower and upper bounds.
+
+        normalized : bool or None, default None
+            Whether to select bounds from :attr:`_PymgridSpace.normalized` or `:attr:_PymgridSpace.unnormalized`.
+
+        Returns
+        -------
+        clipped_val : np.ndarray or dict[str, list[np.ndarray]]
+            Value clipped to lower and upper bounds.
+
+        """
         if low is not None and high is not None:
             space = self._construct_space(low, high)
             return self.inner_clip(val, space)
