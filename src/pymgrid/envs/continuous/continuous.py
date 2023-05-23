@@ -61,6 +61,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     def __init__(self,
                  modules,
                  slack_module=None,
+                 clip_actions=True,
                  add_unbalanced_module=True,
                  loss_load_cost=10,
                  overgeneration_cost=2,
@@ -74,6 +75,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
         self._slack_module = slack_module
         self._slack_module_ref = None
+        self.clip_actions = clip_actions
 
         super().__init__(modules,
                          add_unbalanced_module=add_unbalanced_module,
@@ -203,6 +205,9 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         return {name: [_convert(act, op) for act in action_list] for name, action_list in action.items()}
 
     def clip_action(self, action):
+        if not self.clip_actions:
+            return action
+
         for module_name, module_list in action.items():
             for module_num, act in enumerate(module_list):
                 dynamic_action_space = self.modules[(module_name, module_num)].dynamic_action_space()
