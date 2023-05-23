@@ -195,8 +195,8 @@ class _PymgridSpace(Space):
 
     def clip(self, val, *, low=None, high=None, normalized=None, space=None):
         if low is not None and high is not None:
-            Space = namedtuple('Space', ['low', 'high'])
-            return self.inner_clip(val, Space(low=low, high=high))
+            space = self._construct_space(low, high)
+            return self.inner_clip(val, space)
         elif low is None and high is None:
             pass
         else:
@@ -212,6 +212,11 @@ class _PymgridSpace(Space):
                 space = self._unnormalized
 
         return self.inner_clip(val, space)
+
+    def _construct_space(self, low, high):
+        # TODO (ahalev) this is not a good implementation
+        Space = namedtuple('Space', ['low', 'high'])
+        return {k: [Space(low=np.array(_v), high=np.array(high[k][j])) for j, _v in enumerate(v)] for k, v in low.items()}
 
     @staticmethod
     def inner_clip(val, space):
