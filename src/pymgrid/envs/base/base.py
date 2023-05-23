@@ -247,13 +247,13 @@ class BaseMicrogridEnv(Microgrid, Env):
         """
         pass
 
-    def _log_action(self, action, normalized):
+    def _log_action(self, action, normalized, log_column='converted_action'):
         d = {}
 
-        log_items = [('converted_action', action)]
+        log_items = [(log_column, action)]
 
         if normalized:
-            log_items.append(('denormalized_converted_action', self.microgrid_action_space.denormalize(action)))
+            log_items.append((f'denormalized_{log_column}', self.microgrid_action_space.denormalize(action)))
 
         for key, action in log_items:
             for module, action_list in action.items():
