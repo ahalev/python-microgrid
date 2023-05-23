@@ -162,10 +162,6 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         return super().step(action, normalized=False)
 
     def convert_action(self, action, to_microgrid=True):
-        # TODO test this. Actions are percentages
-        # TODO add a slack module. It should not be in action space and it should be controllable and it
-        # should be given an absolute action to balance the rest.
-
         net_load = self.compute_net_load()
 
         if to_microgrid:
