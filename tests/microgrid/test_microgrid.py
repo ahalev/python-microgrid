@@ -189,6 +189,20 @@ class TestMicrogrid(TestCase):
         self.assertNotEqual(action, clipped)
         self.assertIn(clipped, microgrid.microgrid_action_space.unnormalized)
 
+    def test_action_space_clip_define_low_high(self):
+        microgrid = get_modular_microgrid(normalized_action_bounds=[0, 2])
+
+        action = {'battery': [np.array([60])], 'genset': [np.array([-0.1, 60])], 'grid': [np.array([-10])]}
+
+        clipped = microgrid.microgrid_action_space.clip(action,
+                                                        low=microgrid.microgrid_action_space.unnormalized.low,
+                                                        high=microgrid.microgrid_action_space.unnormalized.high)
+
+        self.assertNotIn(action, microgrid.microgrid_action_space.unnormalized)
+
+        self.assertNotEqual(action, clipped)
+        self.assertIn(clipped, microgrid.microgrid_action_space.unnormalized)
+
     def test_sample_action(self):
         microgrid = get_modular_microgrid()
         action = microgrid.sample_action()
