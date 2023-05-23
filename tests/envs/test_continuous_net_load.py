@@ -125,7 +125,7 @@ class TestNetLoadContinuousEnv(TestCase):
         relative_action = env.convert_action(absolute_action, to_microgrid=False)
         self.assertEqual(relative_action, expected_relative_action)
 
-    def test_convert_action_to_absolute_negative_net_load(self):
+    def test_convert_action_to_absolute_negative_net_load_clip_actions(self):
         new_renewable_module = RenewableModule(time_series=70*np.ones(100))
         microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
 
@@ -135,7 +135,7 @@ class TestNetLoadContinuousEnv(TestCase):
 
         expected_absolute_action = {
             'battery': [np.array([-5])],
-            'genset': [np.array([0, -2.5])],
+            'genset': [np.array([0, 0.0])],
             'grid': [np.array([-2.5])]
         }
 
@@ -165,6 +165,29 @@ class TestNetLoadContinuousEnv(TestCase):
 
         relative_action = env.convert_action(absolute_action, to_microgrid=False)
         self.assertEqual(relative_action, expected_relative_action)
+
+    def test_convert_action_to_absolute_negative_net_load_no_clip_actions(self):
+        new_renewable_module = RenewableModule(time_series=70*np.ones(100))
+        microgrid = get_modular_microgrid(remove_modules=['renewable'], additional_modules=[new_renewable_module])
+
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, clip_actions=False)
+
+        self.assertEqual(env.compute_net_load(), -10.0)
+
+        expected_absolute_action = {
+            'battery': [np.array([-5])],
+            'genset': [np.array([0, -2.5])],
+            'grid': [np.array([-2.5])]
+        }
+
+        relative_action = np.array([0.5, 0, 0.25, 0.25])
+        absolute_action = env.convert_action(relative_action)
+
+        for module_name, action_list in expected_absolute_action.items():
+            for module_num, act in enumerate(action_list):
+                with self.subTest(module_name=module_name, module_num=module_num):
+                    self.assertEqual(act, absolute_action[module_name][module_num])
+
 
 
 class TestNetLoadContinuousEnvSlackModule(TestCase):
