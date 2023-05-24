@@ -169,6 +169,9 @@ class BaseMicrogridEnv(Microgrid, Env):
             if tup:
                 obs_space[name] = Tuple(tup)
 
+        if self.observation_keys and 'net_load' in self.observation_keys:
+            obs_space['net_load'] = Tuple([Box(low=-np.inf, high=1, shape=(1, ), dtype=np.float64)])
+
         obs_space = Dict(obs_space)
 
         return (flatten_space(obs_space) if self._flat_spaces else obs_space), obs_space
@@ -293,6 +296,56 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def sample_action(self, strict_bound=False, sample_flex_modules=False):
         return self.action_space.sample()
+
+    def compute_net_load(self, normalized=False):
+        """
+        Compute the net load at the current step.
+
+        Net load is load minus renewables.
+        -------
+
+        Returns
+        -------
+        net_load : float
+            Net load.
+
+        """
+        try:
+            fixed_consumption = self.modules.fixed.get_attrs('max_consumption').sum().item()
+        except AttributeError:
+            fixed_consumption = 0.0
+
+        try:
+            flex_max_prod_marginal_cost = self.modules.flex.get_attrs('max_production', 'marginal_cost')
+        except AttributeError:
+            flex_production = 0.0
+        else:
+            zero_marginal_cost_flex = flex_max_prod_marginal_cost['marginal_cost'] == 0
+            flex_max_prod = flex_max_prod_marginal_cost.loc[zero_marginal_cost_flex, 'max_production']
+            flex_production = flex_max_prod.sum().item()
+
+        net_load = fixed_consumption - flex_production
+
+        if normalized:
+            if fixed_consumption:
+                return net_load / fixed_consumption
+            return -1.0
+
+        return net_load
+
+    def state_dict(self, normalized=False, as_run_output=False):
+        sd = super().state_dict(normalized=normalized, as_run_output=as_run_output)
+
+        net_load = self.compute_net_load(normalized=normalized)
+
+        if as_run_output:
+            net_load_entry = np.array([net_load])
+        else:
+            net_load_entry = {'net_load': net_load}
+
+        sd['general'] = [net_load_entry]
+
+        return sd
 
     @staticmethod
     def flatten_obs(observation_space, obs):
