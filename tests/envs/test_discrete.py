@@ -94,6 +94,40 @@ class TestDiscreteEnvScenario(TestCase):
 
         self.assertEqual(obs.tolist(), expected_obs)
 
+    def test_observation_keys_net_load_unnormalized(self):
+        keys_in_all_scenarios = ['net_load']
+
+        env = DiscreteMicrogridEnv.from_scenario(microgrid_number=self.microgrid_number,
+                                                 observation_keys=keys_in_all_scenarios)
+
+        for j in range(3):
+            with self.subTest(step=j):
+                obs, _, _, _ = env.step(env.action_space.sample())
+
+                load = env.modules['load'].item().state_dict(normalized=True)['load_current']
+                renewable = env.modules['pv'].item().state_dict(normalized=True)['renewable_current']
+
+                expected_obs = [(load-renewable) / load]
+
+                self.assertEqual(obs.tolist(), expected_obs)
+
+    def test_observation_keys_net_load_and_load_pv_unnormalized(self):
+        keys_in_all_scenarios = ['renewable_current', 'net_load', 'load_current']
+
+        env = DiscreteMicrogridEnv.from_scenario(microgrid_number=self.microgrid_number,
+                                                 observation_keys=keys_in_all_scenarios)
+
+        for j in range(3):
+            with self.subTest(step=j):
+                obs, _, _, _ = env.step(env.action_space.sample())
+
+                load = env.modules['load'].item().state_dict(normalized=True)['load_current']
+                renewable = env.modules['pv'].item().state_dict(normalized=True)['renewable_current']
+
+                expected_obs = [renewable, (load - renewable) / load, load]
+
+                self.assertEqual(obs.tolist(), expected_obs)
+
     def test_set_initial_step(self):
         env = DiscreteMicrogridEnv.from_scenario(self.microgrid_number)
         env = deepcopy(env)
