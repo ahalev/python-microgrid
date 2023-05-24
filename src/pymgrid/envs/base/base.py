@@ -310,6 +310,10 @@ class BaseMicrogridEnv(Microgrid, Env):
             Net load.
 
         """
+
+        if self.current_step == self.final_step:
+            return 0.0
+
         try:
             fixed_consumption = self.modules.fixed.get_attrs('max_consumption').sum().item()
         except AttributeError:
