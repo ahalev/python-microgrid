@@ -131,35 +131,6 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             if msg:
                 raise NameError(msg)
 
-    def compute_net_load(self):
-        """
-        Compute the net load at the current step.
-
-        Net load is load minus renewables.
-        -------
-
-        Returns
-        -------
-        net_load : float
-            Net load.
-
-        """
-        try:
-            fixed_consumption = self.modules.fixed.get_attrs('max_consumption').sum().item()
-        except AttributeError:
-            fixed_consumption = 0.0
-
-        try:
-            flex_max_prod_marginal_cost = self.modules.flex.get_attrs('max_production', 'marginal_cost')
-        except AttributeError:
-            flex_production = 0.0
-        else:
-            zero_marginal_cost_flex = flex_max_prod_marginal_cost['marginal_cost'] == 0
-            flex_max_prod = flex_max_prod_marginal_cost.loc[zero_marginal_cost_flex, 'max_production']
-            flex_production = flex_max_prod.sum().item()
-
-        return fixed_consumption - flex_production
-
     def step(self, action):
         return super().step(action, normalized=False)
 
