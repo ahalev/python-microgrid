@@ -330,7 +330,9 @@ class ModuleSpace(_PymgridSpace):
         normalized = self._normalized.low + (self._norm_spread / self._unnorm_spread) * (val - un_low)
 
         try:
-            return normalized.item()
+            if not isinstance(val, np.ndarray):
+                return normalized.item()
+            return normalized
         except (AttributeError, ValueError):
             return normalized
 
