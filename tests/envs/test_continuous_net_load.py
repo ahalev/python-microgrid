@@ -189,7 +189,6 @@ class TestNetLoadContinuousEnv(TestCase):
                     self.assertEqual(act, absolute_action[module_name][module_num])
 
 
-
 class TestNetLoadContinuousEnvSlackModule(TestCase):
     def test_init_from_microgrid(self):
         microgrid = get_modular_microgrid()
