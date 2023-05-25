@@ -234,18 +234,21 @@ class Container(UserDict):
         return d
 
     def _get_single_unique_attr(self, attr):
-        val = None
+        val = NotImplemented
         for module in self.iterlist():
             try:
                 module_val = getattr(module, attr)
             except AttributeError:
                 continue
 
-            if val is None:
+            if val is NotImplemented:
                 val = module_val
             elif module_val != val:
                 msg = f"Attribute [{attr}] has non-unique values, cannot return single unique value."
                 raise ValueError(msg)
+
+        if val is NotImplemented:
+            raise AttributeError(f'No values found for key {attr}.')
 
         return val
 
