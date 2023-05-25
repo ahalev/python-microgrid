@@ -206,15 +206,15 @@ class Container(UserDict):
         return d_df
 
     def _get_unique_attrs(self, attrs, as_pandas, drop_attr_names):
+        if len(attrs) == 1:
+            return self._get_single_unique_attr(attrs[0])
+
         if not drop_attr_names:
             unique_attrs = {attr: self._get_single_unique_attr(attr) for attr in attrs}
         else:
             unique_attrs = [self._get_single_unique_attr(attr) for attr in attrs]
 
-        if len(attrs) == 1:
-            return unique_attrs[0] if drop_attr_names else unique_attrs[attrs[0]]
-
-        elif as_pandas:
+        if as_pandas:
             return pd.Series(unique_attrs)
 
         return unique_attrs
