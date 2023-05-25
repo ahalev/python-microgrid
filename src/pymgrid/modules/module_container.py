@@ -177,6 +177,9 @@ class Container(UserDict):
         if not attrs:
             raise ValueError('Missing attrs to get.')
 
+        if unique and len(attrs) == 1:
+            return self._get_single_unique_attr(attrs[0])
+
         def getattr_func(module, _attrs):
             if drop_attr_names:
                 return [getattr(module, attr, NotImplemented) for attr in _attrs]
@@ -229,6 +232,22 @@ class Container(UserDict):
             return d_df
 
         return d
+
+    def _get_single_unique_attr(self, attr):
+        val = None
+        for module in self.iterlist():
+            try:
+                module_val = getattr(module, attr)
+            except AttributeError:
+                continue
+
+            if val is None:
+                val = module_val
+            elif module_val != val:
+                msg = f"Attribute [{attr}] has non-unique values, cannot return single unique value."
+                raise ValueError(msg)
+
+        return val
 
     def set_attrs(self, attr_dict=None, **attrs):
         """
