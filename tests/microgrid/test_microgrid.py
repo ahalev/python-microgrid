@@ -308,10 +308,7 @@ class TestMicrogrid(TestCase):
         microgrid.initial_step = 1
 
         self.assertEqual(microgrid.initial_step, 1)
-        self.assertEqual(
-            microgrid.modules.get_attrs('initial_step', unique=True, as_pandas=False),
-            {'initial_step': 1}
-        )
+        self.assertEqual(microgrid.modules.get_attrs('initial_step', unique=True, as_pandas=False), 1)
 
         for module_name, module_list in microgrid.modules.iterdict():
             for n, module in enumerate(module_list):
