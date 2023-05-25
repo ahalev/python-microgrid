@@ -304,12 +304,12 @@ class Container(UserDict):
             return self.data[item]
         except KeyError:
             try:
-                return self.to_dict()[item]
-            except KeyError:
-                try:
+                if isinstance(item, tuple):
                     return self.to_dict(orient='records')[item]
-                except KeyError:
-                    raise KeyError(item)
+                else:
+                    return self.to_dict()[item]
+            except KeyError:
+                raise KeyError(item)
 
     def __getattr__(self, item):
         if item == 'data' or item.startswith('__') or item not in dir(self):
