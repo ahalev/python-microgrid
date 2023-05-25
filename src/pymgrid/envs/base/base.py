@@ -315,7 +315,8 @@ class BaseMicrogridEnv(Microgrid, Env):
             return 0.0
 
         try:
-            fixed_consumption = self.modules.fixed.get_attrs('max_consumption').sum().item()
+            fixed_consumption = self.modules.fixed.get_attrs('max_consumption', as_pandas=False, drop_attr_names=True)
+            fixed_consumption = np.sum(list(fixed_consumption.values()))
         except AttributeError:
             fixed_consumption = 0.0
 
