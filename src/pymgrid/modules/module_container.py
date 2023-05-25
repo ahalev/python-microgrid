@@ -152,7 +152,7 @@ class Container(UserDict):
             Otherwise, ``NotImplemented`` will fill in missing values.
 
         drop_attr_names : bool, default False
-            Whether to drop attribute names.
+            Whether to drop attribute names. Ignored if ``unique`` and ``len(attrs) == 1``.
 
         Returns
         -------
