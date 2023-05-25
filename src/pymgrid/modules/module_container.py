@@ -177,8 +177,8 @@ class Container(UserDict):
         if not attrs:
             raise ValueError('Missing attrs to get.')
 
-        if unique and len(attrs) == 1:
-            return self._get_single_unique_attr(attrs[0])
+        if unique:
+            return self._get_unique_attrs(attrs, as_pandas, drop_attr_names)
 
         def getattr_func(module, _attrs):
             if drop_attr_names:
@@ -192,46 +192,32 @@ class Container(UserDict):
                 for name, module_list in raw_container.items()
             })
 
-        if not (unique or as_pandas):
+        if not as_pandas:
             return d
 
         d_df = pd.DataFrame({(name, num): subdict for name, module_list in d.items()
                             for num, subdict in enumerate(module_list)}).T
 
-        bad_keys = []
-        uniques, nonuniques = {}, []
+        all_not_implemented = d_df.columns[(d_df == NotImplemented).all()]
 
-        for k, v in d_df.items():
-            not_notimplemented = v[v != NotImplemented]
-            unique_items = not_notimplemented.drop_duplicates().values
+        if len(all_not_implemented):
+            raise AttributeError(f'No values found for key(s) {all_not_implemented.tolist()}')
 
-            try:
-                unique_item = unique_items.item()
-            except ValueError:
-                if len(unique_items) == 0:
-                    # Only values were NotImplemented
-                    bad_keys.append(k)
-                else:
-                    nonuniques.append(k)
-            else:
-                uniques[k] = unique_item
+        return d_df
 
-        if len(bad_keys):
-            raise AttributeError(f'No values found for key(s) {bad_keys}')
+    def _get_unique_attrs(self, attrs, as_pandas, drop_attr_names):
+        if not drop_attr_names:
+            unique_attrs = {attr: self._get_single_unique_attr(attr) for attr in attrs}
+        else:
+            unique_attrs = [self._get_single_unique_attr(attr) for attr in attrs]
 
-        if unique:
-            if len(nonuniques):
-                raise ValueError(f"Attribute(s) {nonuniques} have non-unique values, cannot return single unique value.")
+        if len(attrs) == 1:
+            return unique_attrs[0] if drop_attr_names else unique_attrs[attrs[0]]
 
-            if not as_pandas:
-                return uniques
+        elif as_pandas:
+            return pd.Series(unique_attrs)
 
-            return pd.Series(uniques, dtype=None if len(uniques) else float)
-
-        if as_pandas:
-            return d_df
-
-        return d
+        return unique_attrs
 
     def _get_single_unique_attr(self, attr):
         val = NotImplemented
