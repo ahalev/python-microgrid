@@ -257,7 +257,10 @@ class _PymgridSpace(Space):
     def _construct_space(self, low, high):
         # TODO (ahalev) this is not a good implementation
         Space = namedtuple('Space', ['low', 'high'])
-        return {k: [Space(low=np.array(_v), high=np.array(high[k][j])) for j, _v in enumerate(v)] for k, v in low.items()}
+        try:
+            return {k: [Space(low=np.array(_v), high=np.array(high[k][j])) for j, _v in enumerate(v)] for k, v in low.items()}
+        except AttributeError:
+            return Space(low=np.array(low), high=np.array(high))
 
     @staticmethod
     def inner_clip(val, space):
