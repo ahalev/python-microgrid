@@ -23,8 +23,8 @@ class TestTrajectory(TestCase):
         self.assertEqual(env.initial_step, expected_env_initial)
         self.assertEqual(env.final_step, expected_env_final)
 
-        self.assertEqual(env.modules.get_attrs('initial_step', unique=True).item(), expected_module_initial)
-        self.assertEqual(env.modules.get_attrs('final_step', unique=True).item(), expected_module_final)
+        self.assertEqual(env.modules.get_attrs('initial_step', unique=True), expected_module_initial)
+        self.assertEqual(env.modules.get_attrs('final_step', unique=True), expected_module_final)
 
     def test_none_trajectory(self):
         timeseries_length = 100
@@ -62,14 +62,14 @@ class TestTrajectory(TestCase):
         self.assertEqual(env.initial_step, 0)
         self.assertEqual(env.final_step, timeseries_length)
 
-        self.assertGreater(env.modules.get_attrs('initial_step', unique=True).item(), 0)
-        self.assertLess(env.modules.get_attrs('initial_step', unique=True).item(), timeseries_length)
+        self.assertGreater(env.modules.get_attrs('initial_step', unique=True), 0)
+        self.assertLess(env.modules.get_attrs('initial_step', unique=True), timeseries_length)
 
-        self.assertGreater(env.modules.get_attrs('final_step', unique=True).item(), 0)
-        self.assertLess(env.modules.get_attrs('final_step', unique=True).item(), timeseries_length)
+        self.assertGreater(env.modules.get_attrs('final_step', unique=True), 0)
+        self.assertLess(env.modules.get_attrs('final_step', unique=True), timeseries_length)
 
-        self.assertLess(env.modules.get_attrs('initial_step', unique=True).item(),
-                        env.modules.get_attrs('final_step', unique=True).item())
+        self.assertLess(env.modules.get_attrs('initial_step', unique=True),
+                        env.modules.get_attrs('final_step', unique=True))
 
     def test_bad_trajectory_out_of_range(self):
         def trajectory_func(initial_step, final_step):

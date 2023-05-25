@@ -135,10 +135,7 @@ class TestDiscreteEnvScenario(TestCase):
         self.assertEqual(env.initial_step, 0)
 
         self.assertEqual(env.initial_step, 0)
-        self.assertEqual(
-            env.modules.get_attrs('initial_step', unique=True, as_pandas=False),
-            {'initial_step': 0}
-        )
+        self.assertEqual(env.modules.get_attrs('initial_step', unique=True, as_pandas=False), 0)
 
         for module_name, module_list in env.modules.iterdict():
             for n, module in enumerate(module_list):
@@ -155,10 +152,7 @@ class TestDiscreteEnvScenario(TestCase):
         env.initial_step = 1
 
         self.assertEqual(env.initial_step, 1)
-        self.assertEqual(
-            env.modules.get_attrs('initial_step', unique=True, as_pandas=False),
-            {'initial_step': 1}
-        )
+        self.assertEqual(env.modules.get_attrs('initial_step', unique=True, as_pandas=False), 1)
 
         for module_name, module_list in env.modules.iterdict():
             for n, module in enumerate(module_list):
