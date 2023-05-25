@@ -486,7 +486,7 @@ class Microgrid(yaml.YAMLObject):
 
         col_names = ['module_name', 'module_number', 'field']
 
-        initial_step = self._modules.get_attrs('initial_step', unique=True).item()
+        initial_step = self._modules.get_attrs('initial_step', unique=True)
 
         try:
             df = pd.DataFrame(_log_dict, index=pd.RangeIndex(start=initial_step, stop=self.current_step))
@@ -660,7 +660,7 @@ class Microgrid(yaml.YAMLObject):
         current_step : int
             Current step.
         """
-        return self._modules.get_attrs('current_step', unique=True).item()
+        return self._modules.get_attrs('current_step', unique=True)
 
     @property
     def initial_step(self):
@@ -677,12 +677,10 @@ class Microgrid(yaml.YAMLObject):
         return self._initial_step
 
     def _get_module_initial_step(self):
-        initial_step = self.modules.get_attrs('initial_step', unique=True)
         try:
-            return initial_step.item()
-        except ValueError:
-            if initial_step.empty:
-                return 0
+            return self.modules.get_attrs('initial_step', unique=True)
+        except AttributeError:
+            return 0
 
     @initial_step.setter
     def initial_step(self, value):
@@ -706,12 +704,10 @@ class Microgrid(yaml.YAMLObject):
         return self._final_step
 
     def _get_module_final_step(self):
-        final_step = self.modules.get_attrs('final_step', unique=True)
         try:
-            return final_step.item()
-        except ValueError:
-            if final_step.empty:
-                return np.inf
+            return self.modules.get_attrs('final_step', unique=True)
+        except AttributeError:
+            return np.inf
 
     @final_step.setter
     def final_step(self, value):
