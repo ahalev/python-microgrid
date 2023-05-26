@@ -45,7 +45,7 @@ class MicrogridStep:
             raise TypeError(f'reward_shaping_func {self._reward_shaping_func} is not callable.')
 
         assert isinstance(self.cost_info, dict)
-        return self._reward_shaping_func(self._output_info(), self.cost_info)
+        return self._reward_shaping_func(self._reward, self._output_info(), self.cost_info)
 
 
     def _output_info(self):

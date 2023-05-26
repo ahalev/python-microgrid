@@ -19,7 +19,7 @@ class BatteryDischargeShaper(BaseRewardShaper):
     """
     yaml_tag = u"!BatteryDischargeShaper"
 
-    def __call__(self, step_info, cost_info):
+    def __call__(self, original_reward, step_info, cost_info):
         battery_discharge = self.sum_module_val(step_info, 'battery', 'provided_energy')
         load = self.sum_module_val(step_info, 'load', 'absorbed_energy')
         loss_load = self.sum_module_val(step_info, 'unbalanced_energy', 'provided_energy')
