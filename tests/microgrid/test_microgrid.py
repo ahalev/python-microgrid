@@ -573,7 +573,7 @@ class TestMicrogridRewardShaping(TestMicrogridLoadPV):
         return new_microgrid, n_loads, n_pvs
 
     @staticmethod
-    def reward_shaping_func(energy_info, cost_info):
+    def reward_shaping_func(original_reward, energy_info, cost_info):
         total = 0
         for module_name, info_list in energy_info.items():
             for module_info in info_list:
