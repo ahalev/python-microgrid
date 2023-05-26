@@ -136,6 +136,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
 
     def convert_action(self, action, to_microgrid=True):
         net_load = self.compute_net_load()
+        self._microgrid_logger.log(net_load=net_load)
 
         if to_microgrid:
             relative_action = unflatten(self._nested_action_space, action)
