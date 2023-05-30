@@ -124,7 +124,7 @@ class TestDiscreteEnvScenario(TestCase):
                 load = env.modules['load'].item().state_dict(normalized=True)['load_current']
                 renewable = env.modules['pv'].item().state_dict(normalized=True)['renewable_current']
 
-                expected_obs = [renewable, (load - renewable) / load, load]
+                expected_obs = [(load - renewable) / load, renewable, load]
 
                 self.assertEqual(obs.tolist(), expected_obs)
 
