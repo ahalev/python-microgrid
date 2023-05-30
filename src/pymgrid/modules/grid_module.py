@@ -323,11 +323,11 @@ class GridModule(BaseTimeSeriesMicrogridModule):
 
     @property
     def production_marginal_cost(self):
-        return self.import_price[0]
+        return -1 * self.get_cost(1, as_source=True, as_sink=False)
 
     @property
     def absorption_marginal_cost(self):
-        return self.export_price[0]
+        return self.get_cost(1, as_source=False, as_sink=True)
 
     @property
     def is_source(self):
