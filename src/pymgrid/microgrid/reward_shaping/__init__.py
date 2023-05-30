@@ -1,3 +1,4 @@
-from .pv_curtailment_shaper import PVCurtailmentShaper
 from .battery_discharge_shaper import BatteryDischargeShaper
+from .baseline_shaper import BaselineShaper
+from .pv_curtailment_shaper import PVCurtailmentShaper
 from .rescale_shaper import RescaleShaper
