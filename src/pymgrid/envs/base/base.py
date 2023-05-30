@@ -125,13 +125,21 @@ class BaseMicrogridEnv(Microgrid, Env):
         if isinstance(keys, str):
             keys = [keys]
 
+        keys = np.array(keys)
+
         possible_keys = self.potential_observation_keys()
         bad_keys = [key for key in keys if key not in possible_keys]
 
         if bad_keys:
             raise NameError(f'Keys {bad_keys} not found in state.')
 
-        return keys
+        # Put net load at the beginning, to match where it will be in the action space
+        net_load_pos = np.where(np.array(keys) == 'net_load')[0]
+
+        if net_load_pos.size:
+            keys[[0, net_load_pos.item()]] = keys[[net_load_pos.item(), 0]]
+
+        return keys.tolist()
 
     @abstractmethod
     def _get_action_space(self, remove_redundant_actions=False):
