@@ -5,10 +5,12 @@ from pymgrid.microgrid.reward_shaping.base import BaseRewardShaper
 
 class BaselineShaper(BaseRewardShaper):
     """
-    Reward is the original reward scaled by some scale factor.
+    Reward is the original reward minus the baseline of using one module to satisfy net load.
 
-    ``scaled_reward = self.scale_factor * original_reward ``.
-
+    Parameters
+    ----------
+    module : tuple
+        Module name of the form ``(<module_name>, <module_num>)`` from which to compute the baseline cost.
     """
 
     yaml_tag = u"!BaselineShaper"
@@ -44,6 +46,7 @@ class BaselineShaper(BaseRewardShaper):
         return baseline_cost
 
     def __call__(self, original_reward, step_info, cost_info):
+        # Baseline cost is positive, original reward is negative. Equivalent to -1 * (original_cost - baseline_cost).
         baseline_cost = self.compute_baseline_cost(step_info, cost_info)
         return original_reward + baseline_cost
 
