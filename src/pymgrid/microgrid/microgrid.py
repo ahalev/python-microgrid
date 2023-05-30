@@ -321,7 +321,7 @@ class Microgrid(yaml.YAMLObject):
                     microgrid_step.append(name, *module_step)
                     energy_needed -= source_amt
 
-        provided, consumed, reward, shaped_reward = microgrid_step.balance()
+        provided, consumed, reward, shaped_reward = microgrid_step.balance(shape_reward=True)
 
         log_dict = self._get_log_dict(
             provided-controllable_fixed_provided,

@@ -30,10 +30,14 @@ class MicrogridStep:
             except KeyError:
                 pass
 
-    def balance(self):
+    def balance(self, shape_reward=False):
         provided_energy = np.sum(self._info['provided_energy'])
         absorbed_energy = np.sum(self._info['absorbed_energy'])
-        return provided_energy, absorbed_energy, self._reward, self.shaped_reward()
+
+        if shape_reward:
+            return provided_energy, absorbed_energy, self._reward, self.shaped_reward()
+
+        return provided_energy, absorbed_energy, self._reward, None
 
     def output(self):
         return self._obs, self.shaped_reward(), self._done, self._output_info()
