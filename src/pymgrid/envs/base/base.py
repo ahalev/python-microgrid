@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from collections import OrderedDict
 from gym import Env
 from gym.spaces import Box, Dict, Tuple, flatten_space, flatten
 from abc import abstractmethod
@@ -139,6 +140,9 @@ class BaseMicrogridEnv(Microgrid, Env):
     def _get_observation_space(self):
         obs_space = {}
 
+        if self.observation_keys and 'net_load' in self.observation_keys:
+            obs_space['net_load'] = Tuple([Box(low=-np.inf, high=1, shape=(1, ), dtype=np.float64)])
+
         state_series = self.state_series()
 
         for name, module_list in self.modules.iterdict():
@@ -169,10 +173,8 @@ class BaseMicrogridEnv(Microgrid, Env):
             if tup:
                 obs_space[name] = Tuple(tup)
 
-        if self.observation_keys and 'net_load' in self.observation_keys:
-            obs_space['net_load'] = Tuple([Box(low=-np.inf, high=1, shape=(1, ), dtype=np.float64)])
-
-        obs_space = Dict(obs_space)
+        # Prevent sorting of keys; first cast to OrderedDict
+        obs_space = Dict(OrderedDict(obs_space))
 
         return (flatten_space(obs_space) if self._flat_spaces else obs_space), obs_space
 
