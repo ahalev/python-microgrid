@@ -134,7 +134,7 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     def step(self, action):
         return super().step(action, normalized=False)
 
-    def convert_action(self, action, to_microgrid=True):
+    def convert_action(self, action, to_microgrid=True, normalize=False):
         net_load = self.compute_net_load()
 
         if to_microgrid:
