@@ -494,7 +494,7 @@ class Microgrid(yaml.YAMLObject):
             if 'Length of values' in e.args[0]:
                 module_log_lengths = pd.Series([len(log_dict) for log_dict in _log_dict.values()])
 
-                msg = f"Length of module log dicts ({module_log_lengths.unique().item()}) " \
+                msg = f"Length of module log dicts ({module_log_lengths.unique()}) " \
                       f"do not match self.current_step-initial_step ({self.current_step-initial_step}). " \
                       f"Did you set a trajectory attribute " \
                       f"('initial_step', 'final_step', 'trajectory_func') without calling Microgrid.reset()?"
