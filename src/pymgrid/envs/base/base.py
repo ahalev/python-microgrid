@@ -231,6 +231,8 @@ class BaseMicrogridEnv(Microgrid, Env):
             Additional information from this step.
 
         """
+        self._microgrid_logger.log(net_load=self.compute_net_load())
+
         action = self.convert_action(action)
         self._log_action(action, normalized)
 
