@@ -40,6 +40,9 @@ class BaselineShaper(BaseRewardShaper):
 
         return baseline_cost
 
+    def serializable_state_attributes(self):
+        return 'module', 'baseline_module'
+
     def __call__(self, original_reward, step_info, cost_info):
         # Baseline cost is positive, original reward is negative. Equivalent to -1 * (original_cost - baseline_cost).
         baseline_cost = self.compute_baseline_cost(step_info, cost_info)
