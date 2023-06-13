@@ -146,6 +146,8 @@ class GensetModule(BaseMicrogridModule):
         """
         if normalized:
             denormalized = self._action_space.denormalize(action)
+        elif self._action_space.clip_vals:
+            denormalized = self._action_space.clip(action, normalized=False)
         else:
             denormalized = action
 

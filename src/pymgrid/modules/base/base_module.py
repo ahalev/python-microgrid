@@ -137,8 +137,12 @@ class BaseMicrogridModule(yaml.YAMLObject):
             this module provided to or absorbed from the microgrid.
 
         """
-
-        denormalized_action = self._action_space.denormalize(action) if normalized else action
+        if normalized:
+            denormalized_action = self._action_space.denormalize(action)
+        elif self._action_space.clip_vals:
+            denormalized_action = self._action_space.clip(action, normalized=False)
+        else:
+            denormalized_action = action
 
         try:
             denormalized_action = denormalized_action[self._energy_pos]
