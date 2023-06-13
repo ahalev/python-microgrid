@@ -17,6 +17,28 @@ class BaseRewardShaper(yaml.YAMLObject):
         except KeyError:
             return 0.0
 
+    @staticmethod
+    def compute_net_load(step_info):
+        return BaseRewardShaper.compute_total_load(step_info) - BaseRewardShaper.compute_total_renewable(step_info)
+
+    @staticmethod
+    def compute_total_load(step_info):
+        try:
+            load_info = step_info['load']
+        except KeyError:
+            raise NameError("Microgrid has no module with name 'load'")
+
+        return sum(d['absorbed_energy'] for d in load_info)
+
+    @staticmethod
+    def compute_total_renewable(step_info):
+        try:
+            renewable_info = step_info.get('renewable', step_info['pv'])
+        except KeyError:
+            raise NameError("Microgrid has no module with name 'renewable' or 'pv'.")
+
+        return sum(d['provided_energy'] for d in renewable_info)
+
     @abstractmethod
     def __call__(self, original_reward, step_info, cost_info):
         pass

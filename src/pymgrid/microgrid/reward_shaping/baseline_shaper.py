@@ -18,22 +18,6 @@ class BaselineShaper(BaseRewardShaper):
     def __init__(self, module=('grid', 0)):
         self.module = module
 
-    @staticmethod
-    def compute_net_load(step_info):
-        try:
-            load_info = step_info['load']
-        except KeyError:
-            raise NameError("Microgrid has no module with name 'load'")
-
-        try:
-            renewable_info = step_info.get('renewable', step_info['pv'])
-        except KeyError:
-            raise NameError("Microgrid has no module with name 'renewable' or 'pv'.")
-
-        total_load = sum(d['absorbed_energy'] for d in load_info)
-        total_renewable = sum(d['provided_energy'] for d in renewable_info)
-        return total_load - total_renewable
-
     def compute_baseline_cost(self, step_info, cost_info):
         net_load = self.compute_net_load(step_info)
 
