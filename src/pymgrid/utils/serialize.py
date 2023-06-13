@@ -18,7 +18,10 @@ def add_pymgrid_yaml_representers():
     from pymgrid.microgrid.reward_shaping import (
         PVCurtailmentShaper,
         BatteryDischargeShaper,
-        RescaleShaper
+        RescaleShaper,
+        LearnedScaleRescaleShaper,
+        BaselineShaper,
+        SequentialShaper
     )
 
     from pymgrid.modules.battery.transition_models import (
