@@ -1,5 +1,7 @@
+import inspect
 import yaml
 
+from warnings import warn
 from abc import abstractmethod
 
 
@@ -21,3 +23,69 @@ class BaseRewardShaper(yaml.YAMLObject):
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
+
+    def serializable_state_attributes(self):
+        return []
+
+    def serialize(self):
+        return {attr: getattr(self, attr) for attr in self.serializable_state_attributes()}
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(cls.yaml_tag, data.serialize(), flow_style=cls.yaml_flow_style)
+
+    @classmethod
+    def from_yaml(cls, loader, node):
+        mapping = loader.construct_mapping(node, deep=True)
+        instance = cls.deserialize_instance(mapping)
+        instance.set_state_attributes(mapping)
+        return instance
+
+    @classmethod
+    def deserialize_instance(cls, param_dict):
+        """
+        Generate an instance of this module with the arguments in param_dict.
+
+        Part of the ``load`` and ``yaml.safe_load`` methods. Should not be called directly.
+
+        :meta private:
+
+        Parameters
+        ----------
+        param_dict : dict
+            Class arguments.
+
+        Returns
+        -------
+        BaseMicrogridModule or child class of BaseMicrogridModule
+            The module instance.
+
+        """
+        param_dict = param_dict.copy()
+        cls_params = inspect.signature(cls).parameters
+
+        cls_kwargs = {}
+        missing_params, default_params = [], []
+
+        for p_name, p_value in cls_params.items():
+            try:
+                cls_kwargs[p_name] = param_dict.pop(p_name)
+            except KeyError:
+                if p_value.default is p_value.empty:
+                    missing_params.append(p_name)
+                else:
+                    cls_kwargs[p_name] = p_value.default
+                    default_params.append(p_name)
+
+        if len(default_params):
+            warn(f'Missing parameter values {default_params} for {cls}. Using available default values.')
+
+        if len(missing_params):
+            raise KeyError(f"Missing parameter values {missing_params} for {cls} with no default values available.")
+
+        return cls(**cls_kwargs)
+
+    def set_state_attributes(self, attrs_dict):
+        for attr in self.serializable_state_attributes():
+            value = attrs_dict.get(attr, getattr(self, attr))
+            setattr(self, attr, value)
