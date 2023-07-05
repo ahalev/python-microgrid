@@ -1,9 +1,7 @@
 ---
 name: Issue Template
 about: Report a bug, ask a question, or request a new feature
-title: ''
-labels: ''
-assignees: ''
+title: ISSUE
 
 ---
 
