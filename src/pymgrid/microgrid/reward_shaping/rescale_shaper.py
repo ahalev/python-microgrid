@@ -17,7 +17,7 @@ class RescaleShaper(BaseRewardShaper):
         self.scale_factor = scale_factor
 
     def serializable_state_attributes(self):
-        return 'scale_factor'
+        return 'scale_factor',
 
     def __call__(self, original_reward, step_info, cost_info):
         return self.scale_factor * original_reward
