@@ -59,12 +59,12 @@ html_theme_options = {
     "icon_links": [
             {
                 "name": "GitHub",
-                "url": "https://github.com/Total-RD/pymgrid",
+                "url": "https://github.com/ahalev/python-microgrid/",
                 "icon": "fa-brands fa-github",
             },
             {
                 "name": "PyPI",
-                "url": "https://pypi.org/project/pymgrid/",
+                "url": "https://pypi.org/project/python-microgrid/",
                 "icon": "fa-solid fa-box",
             }
     ]
@@ -157,7 +157,7 @@ def linkcode_resolve(domain, info):
 
     fn = os.path.relpath(fn, start=os.path.dirname(pymgrid.__file__))
 
-    return f'https://github.com/Total-RD/pymgrid/tree/v{pymgrid.__version__}/src/pymgrid/{fn}{linespec}'
+    return f'https://github.com/ahalev/python-microgrid/tree/v{pymgrid.__version__}/src/pymgrid/{fn}{linespec}'
 
 
 intersphinx_mapping = {
