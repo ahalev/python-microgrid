@@ -78,9 +78,9 @@ modules:
     - genset
     - 0
     state:
-      _current_status: true
+      _current_status: 1
       _current_step: 0
-      _goal_status: true
+      _goal_status: 1
       _steps_until_down: 0
       _steps_until_up: 0
 - - battery
