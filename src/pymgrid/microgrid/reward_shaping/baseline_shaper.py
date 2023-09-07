@@ -49,6 +49,9 @@ class BaselineShaper(BaseRewardShaper):
         reward = original_reward + baseline_cost
 
         if self.baseline_module:
+            if self.baseline_module == self.module:
+                return reward / baseline_cost
+
             return reward / self.compute_baseline_cost(step_info, cost_info, baseline_module=self.baseline_module)
 
         return reward
