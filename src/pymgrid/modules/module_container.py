@@ -312,7 +312,7 @@ class Container(UserDict):
                 raise KeyError(item)
 
     def __getattr__(self, item):
-        if item == 'data' or item.startswith('__') or item not in dir(self):
+        if item == 'data' or item.startswith('__'):
             raise AttributeError(item)
         try:
             return self[item]
