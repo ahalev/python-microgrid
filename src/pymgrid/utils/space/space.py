@@ -353,13 +353,13 @@ class ModuleSpace(_PymgridSpace):
             return denormalized
 
     def _bounds_check(self, val, low, high):
-        clipped = np.clip(val, low, high)
-
-        if self.verbose or not self.clip_vals and (clipped != val).any():
+        if (low <= val).all() & (val <= high).all():
+            return val
+        elif self.verbose or not self.clip_vals:
             warnings.warn(f'Value {val} resides out of expected bounds of value to be normalized: [{low}, {high}].')
 
         if self.clip_vals:
-            return clipped
+            return np.clip(val, low, high)
 
         return val
 
