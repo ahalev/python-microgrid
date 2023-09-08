@@ -322,16 +322,23 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
 
-        if self.current_step == self.final_step:
-            return 0.0
-
         try:
             fixed_consumption = self.modules.fixed.get_attrs('max_consumption', as_pandas=False, drop_attr_names=True)
             fixed_consumption = np.sum(list(fixed_consumption.values()))
         except AttributeError:
             fixed_consumption = 0.0
+        except IndexError:
+            # Exhausted available data. Episode should be over
+            assert self.current_step == self.final_step
+            return 0.0
 
-        flex_max_prod = [m.max_production for m in self.modules.flex.iterlist() if m.marginal_cost == 0]
+        try:
+            flex_max_prod = [m.max_production for m in self.modules.flex.iterlist() if m.marginal_cost == 0]
+        except IndexError:
+            # Exhausted available data. Episode should be over
+            assert self.current_step == self.final_step
+            return 0.0
+
         flex_production = sum(flex_max_prod)
 
         net_load = fixed_consumption - flex_production
