@@ -50,8 +50,13 @@ class BaselineShaper(BaseRewardShaper):
 
         if self.baseline_module:
             if self.baseline_module == self.module:
-                return reward / baseline_cost
+                scale = baseline_cost
+            else:
+                scale = self.compute_baseline_cost(step_info, cost_info, baseline_module=self.baseline_module)
 
-            return reward / self.compute_baseline_cost(step_info, cost_info, baseline_module=self.baseline_module)
+            scale = max(scale, 1.0)
+
+            return reward / scale
+
 
         return reward
