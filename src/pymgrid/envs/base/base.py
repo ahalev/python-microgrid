@@ -280,11 +280,27 @@ class BaseMicrogridEnv(Microgrid, Env):
         self._microgrid_logger.log(d)
 
     def _get_obs(self, obs):
+        if self.observation_keys and self._flat_spaces:
+            _obs = np.array([module_state[k] for k in self.observation_keys
+                               for module_name, module_states in self.state_dict(normalized=True).items()
+                               for module_state in module_states if k in module_state])
+
+            if np.random.rand() < 0.01:
+                # This is an assertion to check that this is the same as the old computation
+                # Can be removed at a later date
+                assert np.isclose(_obs, self._get_obs_old(obs)).all()
+
+            return _obs
+
+        return self._get_obs_old(obs)
+
+    def _get_obs_old(self, obs):
         if self.observation_keys:
             obs = self.state_series(normalized=True).loc[pd.IndexSlice[:, :, self.observation_keys]]
 
             if self._flat_spaces:
                 obs = obs.values
+
             else:
                 obs = obs.to_frame().unstack(level=1).T.droplevel(level=1, axis=1).to_dict(orient='list')
 
