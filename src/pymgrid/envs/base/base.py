@@ -111,7 +111,7 @@ class BaseMicrogridEnv(Microgrid, Env):
                          trajectory_func=trajectory_func)
 
         self._flat_spaces = flat_spaces
-        self.observation_keys = self._validate_observation_keys(observation_keys)
+        self.observation_keys, self._keys_unique_in_modules = self._validate_observation_keys(observation_keys)
         self.step_callback = step_callback if step_callback is not None else lambda *a, **k: None
         self.reset_callback = reset_callback if reset_callback is not None else lambda *a, **k: None
 
@@ -120,15 +120,15 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def _validate_observation_keys(self, keys):
         if not keys:
-            return keys
+            return keys, True
 
         if isinstance(keys, str):
             keys = [keys]
 
         keys = np.array(keys)
 
-        possible_keys = self.potential_observation_keys()
-        bad_keys = [key for key in keys if key not in possible_keys]
+        possible_keys = self.potential_observation_keys(counts=True)
+        bad_keys = [key for key in keys if key not in possible_keys.index]
 
         if bad_keys:
             raise NameError(f'Keys {bad_keys} not found in state.')
@@ -139,7 +139,7 @@ class BaseMicrogridEnv(Microgrid, Env):
         if net_load_pos.size:
             keys[[0, net_load_pos.item()]] = keys[[net_load_pos.item(), 0]]
 
-        return keys.tolist()
+        return keys.tolist(), (possible_keys[keys] == 1).all()
 
     @abstractmethod
     def _get_action_space(self, remove_redundant_actions=False):
@@ -186,7 +186,10 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         return (flatten_space(obs_space) if self._flat_spaces else obs_space), obs_space
 
-    def potential_observation_keys(self):
+    def potential_observation_keys(self, counts=False):
+        if counts:
+            return self.state_series().index.get_level_values(-1).value_counts()
+
         return self.state_series().index.get_level_values(-1).unique()
 
     def reset(self):
@@ -280,7 +283,10 @@ class BaseMicrogridEnv(Microgrid, Env):
         self._microgrid_logger.log(d)
 
     def _get_obs(self, obs):
-        if self.observation_keys and self._flat_spaces:
+        if self.observation_keys and self._flat_spaces and self._keys_unique_in_modules:
+            # If keys are not unique in modules, this behavior might be wrong.
+            # Thus we delegate to _get_obs_old for now.
+
             _obs = np.array([module_state[k] for k in self.observation_keys
                                for module_name, module_states in self.state_dict(normalized=True).items()
                                for module_state in module_states if k in module_state])
