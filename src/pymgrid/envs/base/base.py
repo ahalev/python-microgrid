@@ -118,6 +118,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         self.action_space = self._get_action_space()
         self.observation_space, self._nested_observation_space = self._get_observation_space()
 
+        self._current_net_load = self.compute_net_load()
+
     def _validate_observation_keys(self, keys):
         if not keys:
             return keys, True
@@ -197,6 +199,9 @@ class BaseMicrogridEnv(Microgrid, Env):
         obs.pop('balance')
         obs.pop('other')
         self.reset_callback()
+
+        self._current_net_load = self.compute_net_load()
+
         return self._get_obs(obs)
 
     def step(self, action, normalized=True):
@@ -234,7 +239,7 @@ class BaseMicrogridEnv(Microgrid, Env):
             Additional information from this step.
 
         """
-        self._microgrid_logger.log(net_load=self.compute_net_load())
+        self._microgrid_logger.log(net_load=self._current_net_load)
 
         action = self.convert_action(action)
         self._log_action(action, normalized)
@@ -242,6 +247,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         obs, reward, done, info = self.run(action, normalized=normalized)
         obs = self._get_obs(obs)
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
+
+        self._current_net_load = self.compute_net_load()
 
         return obs, reward, done, info
 
@@ -413,6 +420,10 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
         return self._flat_spaces
+
+    @property
+    def current_net_load(self):
+        return self._current_net_load
 
     @classmethod
     def from_microgrid(cls, microgrid, **kwargs):

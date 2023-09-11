@@ -135,21 +135,19 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         return super().step(action, normalized=False)
 
     def convert_action(self, action, to_microgrid=True, normalize=False):
-        net_load = self.compute_net_load()
-
         if to_microgrid:
             relative_action = unflatten(self._nested_action_space, action)
 
             self._log_action(relative_action, normalized=False, log_column='net_load_action')
 
-            absolute_action = self.make_absolute(relative_action, net_load)
+            absolute_action = self.make_absolute(relative_action, self._current_net_load)
             absolute_action = self.clip_action(absolute_action)
-            absolute_action = self.add_slack(absolute_action, net_load)
+            absolute_action = self.add_slack(absolute_action, self._current_net_load)
             self._check_action(absolute_action)
             return absolute_action
 
         self._check_action(action)
-        relative_action = self.make_relative(action, net_load)
+        relative_action = self.make_relative(action, self._current_net_load)
         return flatten(self._nested_action_space, relative_action)
 
     @staticmethod
