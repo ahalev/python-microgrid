@@ -124,9 +124,10 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
                 self._slack_module_ref = controllable_modules_dict_lists[self._slack_module].item()
                 self._slack_module = self._slack_module_ref.name
             except ValueError:
-                msg = f"Module name {self._slack_module} does not point to one controllable candidate."
+                msg = f"Module name {self._slack_module} does not point to unique controllable candidate."
             except KeyError:
-                msg = f"No module '{self._slack_module}' amongst controllable candidates {controllable_modules_dict}"
+                msg = f"No module '{self._slack_module}' amongst controllable candidates " \
+                      f"{list(controllable_modules_dict.keys())}"
 
             if msg:
                 raise NameError(msg)
