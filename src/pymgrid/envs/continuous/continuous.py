@@ -209,7 +209,8 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     def _check_action(self, absolute_action):
         if self.check_actions:
             try:
-                assert absolute_action in self._nested_action_space, f"{absolute_action=} not in {self._nested_action_space=}"
+                assert absolute_action in self.microgrid_action_space.unnormalized, \
+                    f"{absolute_action=}\n\tnot in\n{self.microgrid_action_space.unnormalized=}"
             except AssertionError:
                 clipped = self.microgrid_action_space.clip(absolute_action, normalized=False)
 
