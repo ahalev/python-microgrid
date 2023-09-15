@@ -433,11 +433,21 @@ class MicrogridSpace(_PymgridSpace):
         return MicrogridSpace.dict_op(val, space, op)
 
     @staticmethod
-    def dict_op(first, second, op):
+    def dict_op(first, second=None, op=None):
+        if op is None:
+            raise TypeError('Must pass an operation.')
+
         out = {}
-        for k, first_list in first.items():
-            second_list = second[k]
-            out[k] = [op(f, s) for f, s in zip(first_list, second_list)]
+
+        if not second:
+            for k, first_list in first.items():
+                out[k] = [op(f) for f in first_list]
+
+        else:
+            for k, first_list in first.items():
+                second_list = second[k]
+                out[k] = [op(f, s) for f, s in zip(first_list, second_list)]
+
         return out
 
     @classmethod
