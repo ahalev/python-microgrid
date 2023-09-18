@@ -148,7 +148,6 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             self._check_action(absolute_action)
             return absolute_action
 
-        action = self.clip_action(action)
         self._check_action(action)
         relative_action = self.make_relative(action, self._current_net_load)
         return flatten(self._nested_action_space, relative_action)
