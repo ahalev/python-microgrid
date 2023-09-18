@@ -181,7 +181,11 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         if not self.clip_actions:
             return action
 
-        return self.microgrid_action_space.clip(action, normalized=False)
+        for module_name, module_list in action.items():
+            for module_num, act in enumerate(module_list):
+                action[module_name][module_num] = clip_module_action(act, self.modules[(module_name, module_num)])
+
+        return action
 
     def add_slack(self, action, net_load):
         if self._slack_module is None:
@@ -228,3 +232,10 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     @property
     def slack_module_ref(self):
         return self._slack_module_ref
+
+
+def clip_module_action(action, module):
+    low = -1 * module.max_consumption
+    high = module.max_production
+
+    return module.action_space.clip(action, low=low, high=high)
