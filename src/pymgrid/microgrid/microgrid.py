@@ -12,6 +12,7 @@ from pymgrid.utils.eq import verbose_eq
 from pymgrid.utils.logger import ModularLogger
 from pymgrid.utils.serialize import add_numpy_pandas_representers, add_numpy_pandas_constructors, dump_data
 from pymgrid.utils.space import MicrogridSpace
+from pymgrid.utils.deprecation import deprecation_warning
 
 
 class Microgrid(yaml.YAMLObject):
@@ -225,7 +226,11 @@ class Microgrid(yaml.YAMLObject):
             self._set_initial_step(initial_step, modules_only=True)
             self._set_final_step(final_step, modules_only=True)
 
+    @deprecation_warning('step')
     def run(self, control, normalized=True):
+        return self.step(control, normalized=normalized)
+
+    def step(self, control, normalized=True):
         """
 
         Run the microgrid for a single step.
