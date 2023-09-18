@@ -144,7 +144,6 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
             absolute_action = self.make_absolute(relative_action, self._current_net_load)
             absolute_action = self.clip_action(absolute_action)
             absolute_action = self.add_slack(absolute_action, self._current_net_load)
-
             self._check_action(absolute_action)
             return absolute_action
 
