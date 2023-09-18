@@ -130,34 +130,8 @@ def linkcode_resolve(domain, info):
         except AttributeError:
             return None
 
-    try:
-        fn = inspect.getsourcefile(inspect.unwrap(obj))
-    except TypeError:
-        try:  # property
-            fn = inspect.getsourcefile(inspect.unwrap(obj.fget))
-        except (AttributeError, TypeError):
-            fn = None
-    if not fn:
-        return None
+    return pymgrid.utils.obj_linkcode(obj)
 
-    try:
-        source, lineno = inspect.getsourcelines(obj)
-    except TypeError:
-        try:  # property
-            source, lineno = inspect.getsourcelines(obj.fget)
-        except (AttributeError, TypeError):
-            lineno = None
-    except OSError:
-        lineno = None
-
-    if lineno:
-        linespec = f"#L{lineno}-L{lineno + len(source) - 1}"
-    else:
-        linespec = ""
-
-    fn = os.path.relpath(fn, start=os.path.dirname(pymgrid.__file__))
-
-    return f'https://github.com/ahalev/python-microgrid/tree/v{pymgrid.__version__}/src/pymgrid/{fn}{linespec}'
 
 
 intersphinx_mapping = {
