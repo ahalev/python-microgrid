@@ -155,11 +155,11 @@ class TestNetLoadContinuousEnv(TestCase):
 
         self.assertEqual(env.compute_net_load(), -10.0)
 
-        expected_relative_action = np.array([0.5, 0, -0.25, 0.25])
+        expected_relative_action = np.array([0.5, 0, 0.25, 0.25])
 
         absolute_action = {
             'battery': [np.array([-5])],
-            'genset': [np.array([0, 2.5])],
+            'genset': [np.array([0, -2.5])],
             'grid': [np.array([-2.5])]
         }
 
@@ -176,12 +176,11 @@ class TestNetLoadContinuousEnv(TestCase):
 
         expected_absolute_action = {
             'battery': [np.array([-5])],
-            'genset': [np.array([0, 0.0])],
+            'genset': [np.array([0, -2.5])],
             'grid': [np.array([-2.5])]
         }
 
-        relative_action = np.array([0.5, 0, 0.0, 0.25])
-
+        relative_action = np.array([0.5, 0, 0.25, 0.25])
         absolute_action = env.convert_action(relative_action)
 
         for module_name, action_list in expected_absolute_action.items():
@@ -344,11 +343,11 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
 
         expected_absolute_action = {
             'battery': [np.array([-5.])],
-            'genset': [np.array([0, 2.5])],
-            'grid': [np.array([-7.5])]
+            'genset': [np.array([0, -2.5])],
+            'grid': [np.array([-2.5])]
         }
 
-        relative_action = np.array([0.5, 0, -0.25])
+        relative_action = np.array([0.5, 0, 0.25])
 
         absolute_action = env.convert_action(relative_action)
 
@@ -365,12 +364,12 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
 
         self.assertEqual(env.compute_net_load(), -10.0)
 
-        expected_relative_action = np.array([0.5, 0, -0.25])
+        expected_relative_action = np.array([0.5, 0, 0.25])
 
         absolute_action = {
             'battery': [np.array([-5])],
-            'genset': [np.array([0, 2.5])],
-            'grid': [np.array([-7.5])]
+            'genset': [np.array([0, -2.5])],
+            'grid': [np.array([-2.5])]
         }
 
         relative_action = env.convert_action(absolute_action, to_microgrid=False)
@@ -406,12 +405,12 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
         self.assertEqual(env.compute_net_load(), 10.0)
 
         expected_absolute_action = {
-            'battery': [np.array([-5.0])],
-            'genset': [np.array([1, 2.5])],
-            'grid': [np.array([12.5])]
+            'battery': [np.array([5.0])],
+            'genset': [np.array([1, -2.5])],
+            'grid': [np.array([7.5])]
         }
 
-        relative_action = np.array([-0.5, 1, 0.25])
+        relative_action = np.array([0.5, 1, -0.25])
 
         absolute_action = env.convert_action(relative_action)
 
@@ -427,13 +426,13 @@ class TestNetLoadContinuousEnvSlackModule(TestCase):
 
         self.assertEqual(env.compute_net_load(), 10.0)
 
-        expected_relative_action = np.array([-0.5, 1, 0.25])
+        expected_relative_action = np.array([0.5, 1, -0.25])
 
 
         absolute_action = {
-            'battery': [np.array([-5.0])],
-            'genset': [np.array([1, 2.5])],
-            'grid': [np.array([12.5])]
+            'battery': [np.array([5.0])],
+            'genset': [np.array([1, -2.5])],
+            'grid': [np.array([7.5])]
         }
 
         relative_action = env.convert_action(absolute_action, to_microgrid=False)
