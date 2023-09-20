@@ -374,7 +374,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     @staticmethod
     def flatten_obs(observation_space, obs):
-        return np.concatenate([flatten(observation_space[k], v) for k, v in obs.items()])
+        return np.concatenate([flatten(space, obs[k]) for k, space in observation_space.items()])
 
     @property
     def unwrapped(self):
