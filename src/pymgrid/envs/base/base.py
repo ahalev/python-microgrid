@@ -150,10 +150,12 @@ class BaseMicrogridEnv(Microgrid, Env):
     def _get_observation_space(self):
         obs_space = {}
 
-        if self.observation_keys and 'net_load' in self.observation_keys:
-            obs_space['net_load'] = Tuple([Box(low=-np.inf, high=1, shape=(1, ), dtype=np.float64)])
-
         state_series = self.state_series()
+
+        observation_keys = self.observation_keys or state_series.index.get_level_values(-1)
+
+        if 'net_load' in observation_keys:
+            obs_space['general'] = Tuple([Box(low=-np.inf, high=1, shape=(1, ), dtype=np.float64)])
 
         for name, module_list in self.modules.iterdict():
             tup = []
