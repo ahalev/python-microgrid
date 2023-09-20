@@ -189,11 +189,9 @@ class BaseMicrogridEnv(Microgrid, Env):
         return self.state_series().index.get_level_values(-1).unique()
 
     def reset(self):
-        obs = super().reset()
-        obs.pop('balance')
-        obs.pop('other')
+        super().reset()
         self.reset_callback()
-        return self._get_obs(obs)
+        return self._get_obs()
 
     def step(self, action, normalized=True):
         """
@@ -235,8 +233,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         action = self.convert_action(action)
         self._log_action(action, normalized)
 
-        obs, reward, done, info = self.run(action, normalized=normalized)
-        obs = self._get_obs(obs)
+        _, reward, done, info = self.run(action, normalized=normalized)
+        obs = self._get_obs()
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
 
         return obs, reward, done, info
