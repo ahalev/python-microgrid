@@ -238,4 +238,8 @@ def clip_module_action(action, module):
     low = -1 * module.max_consumption
     high = module.max_production
 
+    if len(action) > 1:
+        low = [*module.action_space.unnormalized.low[:-1], low]
+        high = [*module.action_space.unnormalized.high[:-1], high]
+
     return module.action_space.clip(action, low=low, high=high)
