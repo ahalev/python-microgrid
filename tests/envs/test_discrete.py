@@ -16,7 +16,8 @@ class TestDiscreteEnv(TestCase):
         self.assertEqual(env.modules, microgrid.modules)
         self.assertIsNot(env.modules.to_tuples(), microgrid.modules.to_tuples())
 
-        n_obs = sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
+        # Add one for net load
+        n_obs = 1 + sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
 
         self.assertEqual(env.observation_space.shape, (n_obs,))
 
@@ -27,7 +28,8 @@ class TestDiscreteEnv(TestCase):
         self.assertEqual(env.modules, microgrid.modules)
         self.assertIsNot(env.modules.to_tuples(), microgrid.modules.to_tuples())
 
-        n_obs = sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
+        # Add one for net load
+        n_obs = 1 + sum([x.observation_space['normalized'].shape[0] for x in microgrid.modules.to_list()])
 
         self.assertEqual(env.observation_space.shape, (n_obs,))
 
