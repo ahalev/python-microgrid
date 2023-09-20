@@ -278,7 +278,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         self._microgrid_logger.log(d)
 
-    def _get_obs(self, obs):
+    def _get_obs(self):
         if self.observation_keys:
             obs = self.state_series(normalized=True).loc[pd.IndexSlice[:, :, self.observation_keys]]
 
@@ -288,7 +288,9 @@ class BaseMicrogridEnv(Microgrid, Env):
                 obs = obs.to_frame().unstack(level=1).T.droplevel(level=1, axis=1).to_dict(orient='list')
 
         elif self._flat_spaces:
-            obs = self.flatten_obs(self._nested_observation_space, obs)
+            obs = self.state_series(normalized=True).values
+        else:
+            obs = self.state_dict(normalized=True, as_run_output=True)
 
         return obs
 
