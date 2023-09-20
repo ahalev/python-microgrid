@@ -361,9 +361,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         return net_load
 
-    def state_dict(self, normalized=False, as_run_output=False):
-        sd = super().state_dict(normalized=normalized, as_run_output=as_run_output)
-
+    def state_dict(self, normalized=False, as_run_output=False, _initial=None):
         net_load = self.compute_net_load(normalized=normalized)
 
         if as_run_output:
@@ -371,9 +369,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         else:
             net_load_entry = {'net_load': net_load}
 
-        sd['general'] = [net_load_entry]
-
-        return sd
+        state_dict = {'general': [net_load_entry]}
+        return super().state_dict(normalized=normalized, as_run_output=as_run_output, _initial=state_dict)
 
     @staticmethod
     def flatten_obs(observation_space, obs):
