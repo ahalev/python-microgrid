@@ -111,26 +111,24 @@ class BaseMicrogridEnv(Microgrid, Env):
                          trajectory_func=trajectory_func)
 
         self._flat_spaces = flat_spaces
-        self.observation_keys, self._keys_unique_in_modules = self._validate_observation_keys(observation_keys)
+        self.observation_keys = self._validate_observation_keys(observation_keys)
         self.step_callback = step_callback if step_callback is not None else lambda *a, **k: None
         self.reset_callback = reset_callback if reset_callback is not None else lambda *a, **k: None
 
         self.action_space = self._get_action_space()
         self.observation_space, self._nested_observation_space = self._get_observation_space()
 
-        self._current_net_load = self.compute_net_load()
-
     def _validate_observation_keys(self, keys):
         if not keys:
-            return keys, True
+            return keys
 
         if isinstance(keys, str):
             keys = [keys]
 
         keys = np.array(keys)
 
-        possible_keys = self.potential_observation_keys(counts=True)
-        bad_keys = [key for key in keys if key not in possible_keys.index]
+        possible_keys = self.potential_observation_keys()
+        bad_keys = [key for key in keys if key not in possible_keys]
 
         if bad_keys:
             raise NameError(f'Keys {bad_keys} not found in state.')
@@ -141,7 +139,7 @@ class BaseMicrogridEnv(Microgrid, Env):
         if net_load_pos.size:
             keys[[0, net_load_pos.item()]] = keys[[net_load_pos.item(), 0]]
 
-        return keys.tolist(), (possible_keys[keys] == 1).all()
+        return keys.tolist()
 
     @abstractmethod
     def _get_action_space(self, remove_redundant_actions=False):
@@ -188,10 +186,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         return (flatten_space(obs_space) if self._flat_spaces else obs_space), obs_space
 
-    def potential_observation_keys(self, counts=False):
-        if counts:
-            return self.state_series().index.get_level_values(-1).value_counts()
-
+    def potential_observation_keys(self):
         return self.state_series().index.get_level_values(-1).unique()
 
     def reset(self):
@@ -199,9 +194,6 @@ class BaseMicrogridEnv(Microgrid, Env):
         obs.pop('balance')
         obs.pop('other')
         self.reset_callback()
-
-        self._current_net_load = self.compute_net_load()
-
         return self._get_obs(obs)
 
     def step(self, action, normalized=True):
@@ -239,7 +231,7 @@ class BaseMicrogridEnv(Microgrid, Env):
             Additional information from this step.
 
         """
-        self._microgrid_logger.log(net_load=self._current_net_load)
+        self._microgrid_logger.log(net_load=self.compute_net_load())
 
         action = self.convert_action(action)
         self._log_action(action, normalized)
@@ -247,8 +239,6 @@ class BaseMicrogridEnv(Microgrid, Env):
         obs, reward, done, info = self.run(action, normalized=normalized)
         obs = self._get_obs(obs)
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
-
-        self._current_net_load = self.compute_net_load()
 
         return obs, reward, done, info
 
@@ -290,30 +280,11 @@ class BaseMicrogridEnv(Microgrid, Env):
         self._microgrid_logger.log(d)
 
     def _get_obs(self, obs):
-        if self.observation_keys and self._flat_spaces and self._keys_unique_in_modules:
-            # If keys are not unique in modules, this behavior might be wrong.
-            # Thus we delegate to _get_obs_old for now.
-
-            _obs = np.array([module_state[k] for k in self.observation_keys
-                               for module_name, module_states in self.state_dict(normalized=True).items()
-                               for module_state in module_states if k in module_state])
-
-            if np.random.rand() < 0.01:
-                # This is an assertion to check that this is the same as the old computation
-                # Can be removed at a later date
-                assert np.isclose(_obs, self._get_obs_old(obs)).all()
-
-            return _obs
-
-        return self._get_obs_old(obs)
-
-    def _get_obs_old(self, obs):
         if self.observation_keys:
             obs = self.state_series(normalized=True).loc[pd.IndexSlice[:, :, self.observation_keys]]
 
             if self._flat_spaces:
                 obs = obs.values
-
             else:
                 obs = obs.to_frame().unstack(level=1).T.droplevel(level=1, axis=1).to_dict(orient='list')
 
@@ -352,23 +323,16 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
 
+        if self.current_step == self.final_step:
+            return 0.0
+
         try:
             fixed_consumption = self.modules.fixed.get_attrs('max_consumption', as_pandas=False, drop_attr_names=True)
             fixed_consumption = np.sum(list(fixed_consumption.values()))
         except AttributeError:
             fixed_consumption = 0.0
-        except IndexError:
-            # Exhausted available data. Episode should be over
-            assert self.current_step == self.final_step
-            return 0.0
 
-        try:
-            flex_max_prod = [m.max_production for m in self.modules.flex.iterlist() if m.marginal_cost == 0]
-        except IndexError:
-            # Exhausted available data. Episode should be over
-            assert self.current_step == self.final_step
-            return 0.0
-
+        flex_max_prod = [m.max_production for m in self.modules.flex.iterlist() if m.marginal_cost == 0]
         flex_production = sum(flex_max_prod)
 
         net_load = fixed_consumption - flex_production
@@ -420,10 +384,6 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
         return self._flat_spaces
-
-    @property
-    def current_net_load(self):
-        return self._current_net_load
 
     @classmethod
     def from_microgrid(cls, microgrid, **kwargs):

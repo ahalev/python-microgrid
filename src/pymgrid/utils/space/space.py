@@ -353,13 +353,13 @@ class ModuleSpace(_PymgridSpace):
             return denormalized
 
     def _bounds_check(self, val, low, high):
-        if (low <= val).all() & (val <= high).all():
-            return val
-        elif self.verbose or not self.clip_vals:
+        clipped = np.clip(val, low, high)
+
+        if self.verbose or not self.clip_vals and (clipped != val).any():
             warnings.warn(f'Value {val} resides out of expected bounds of value to be normalized: [{low}, {high}].')
 
         if self.clip_vals:
-            return np.clip(val, low, high)
+            return clipped
 
         return val
 
@@ -433,21 +433,11 @@ class MicrogridSpace(_PymgridSpace):
         return MicrogridSpace.dict_op(val, space, op)
 
     @staticmethod
-    def dict_op(first, second=None, op=None):
-        if op is None:
-            raise TypeError('Must pass an operation.')
-
+    def dict_op(first, second, op):
         out = {}
-
-        if not second:
-            for k, first_list in first.items():
-                out[k] = [op(f) for f in first_list]
-
-        else:
-            for k, first_list in first.items():
-                second_list = second[k]
-                out[k] = [op(f, s) for f, s in zip(first_list, second_list)]
-
+        for k, first_list in first.items():
+            second_list = second[k]
+            out[k] = [op(f, s) for f, s in zip(first_list, second_list)]
         return out
 
     @classmethod

@@ -278,19 +278,20 @@ class BaseMicrogridModule(yaml.YAMLObject):
         return self.update(absorbed_energy, as_sink=True)
 
     def _log(self, state_dict_pre_step, provided_energy=None, absorbed_energy=None, **info):
-        energy_info = dict()
+        _info = info.copy()
 
         if self.provided_energy_name is not None:
-            energy_info[self.provided_energy_name] = provided_energy if provided_energy is not None else 0.0
+            _info[self.provided_energy_name] = provided_energy if provided_energy is not None else 0.0
         else:
             assert provided_energy is None, 'Cannot log provided_energy with NoneType provided_energy_name.'
 
         if self.absorbed_energy_name is not None:
-            energy_info[self.absorbed_energy_name] = absorbed_energy if absorbed_energy is not None else 0.0
+            _info[self.absorbed_energy_name] = absorbed_energy if absorbed_energy is not None else 0.0
         else:
             assert absorbed_energy is None, 'Cannot log absorbed_energy with NoneType absorbed_energy_name.'
 
-        self._logger.log(**info, **energy_info, **state_dict_pre_step)
+        _info.update(state_dict_pre_step)
+        self._logger.log(**_info)
 
     def _update_step(self, reset=False):
         if reset:

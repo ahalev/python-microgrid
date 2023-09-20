@@ -124,10 +124,9 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
                 self._slack_module_ref = controllable_modules_dict_lists[self._slack_module].item()
                 self._slack_module = self._slack_module_ref.name
             except ValueError:
-                msg = f"Module name {self._slack_module} does not point to unique controllable candidate."
+                msg = f"Module name {self._slack_module} does not point to one controllable candidate."
             except KeyError:
-                msg = f"No module '{self._slack_module}' amongst controllable candidates " \
-                      f"{list(controllable_modules_dict.keys())}"
+                msg = f"No module '{self._slack_module}' amongst controllable candidates {controllable_modules_dict}"
 
             if msg:
                 raise NameError(msg)
@@ -136,21 +135,21 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         return super().step(action, normalized=False)
 
     def convert_action(self, action, to_microgrid=True, normalize=False):
+        net_load = self.compute_net_load()
+
         if to_microgrid:
             relative_action = unflatten(self._nested_action_space, action)
 
             self._log_action(relative_action, normalized=False, log_column='net_load_action')
 
-            absolute_action = self.make_absolute(relative_action, self._current_net_load)
+            absolute_action = self.make_absolute(relative_action, net_load)
             absolute_action = self.clip_action(absolute_action)
-            absolute_action = self.add_slack(absolute_action, self._current_net_load)
-
+            absolute_action = self.add_slack(absolute_action, net_load)
             self._check_action(absolute_action)
             return absolute_action
 
-        action = self.clip_action(action)
         self._check_action(action)
-        relative_action = self.make_relative(action, self._current_net_load)
+        relative_action = self.make_relative(action, net_load)
         return flatten(self._nested_action_space, relative_action)
 
     @staticmethod
@@ -182,7 +181,11 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         if not self.clip_actions:
             return action
 
-        return self.microgrid_action_space.clip(action, normalized=False)
+        for module_name, module_list in action.items():
+            for module_num, act in enumerate(module_list):
+                action[module_name][module_num] = clip_module_action(act, self.modules[(module_name, module_num)])
+
+        return action
 
     def add_slack(self, action, net_load):
         if self._slack_module is None:
@@ -206,13 +209,12 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     def _check_action(self, absolute_action):
         if self.check_actions:
             try:
-                assert absolute_action in self.microgrid_action_space.unnormalized, \
-                    f"{absolute_action=}\n\tnot in\n{self.microgrid_action_space.unnormalized=}"
+                assert absolute_action in self._nested_action_space
             except AssertionError:
                 clipped = self.microgrid_action_space.clip(absolute_action, normalized=False)
 
                 if np.isclose(flatten(self._nested_action_space, absolute_action),
-                              flatten(self._nested_action_space, clipped)).all():
+                              flatten(self._nested_action_space, absolute_action)).all():
                     _action = clipped
                 else:
                     raise
@@ -229,3 +231,10 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
     @property
     def slack_module_ref(self):
         return self._slack_module_ref
+
+
+def clip_module_action(action, module):
+    low = -1 * module.max_consumption
+    high = module.max_production
+
+    return module.action_space.clip(action, low=low, high=high)
