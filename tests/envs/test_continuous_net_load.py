@@ -9,7 +9,7 @@ from tests.helpers.modular_microgrid import get_modular_microgrid
 from tests.envs.test_discrete import TestDiscreteEnvScenario
 
 from pymgrid.envs import NetLoadContinuousMicrogridEnv
-from pymgrid.modules import RenewableModule
+from pymgrid.modules import RenewableModule, BatteryModule
 from pymgrid import Microgrid
 
 
@@ -188,6 +188,36 @@ class TestNetLoadContinuousEnv(TestCase):
             for module_num, act in enumerate(action_list):
                 with self.subTest(module_name=module_name, module_num=module_num):
                     self.assertEqual(act, absolute_action[module_name][module_num])
+
+    def test_clip_action(self):
+        battery = BatteryModule(
+            min_capacity=0,
+            max_capacity=100,
+            max_charge=50,
+            max_discharge=50,
+            efficiency=1.0,
+            init_soc=0.8,
+        )
+
+        microgrid = get_modular_microgrid(remove_modules=['battery'], additional_modules=[battery])
+
+        env = NetLoadContinuousMicrogridEnv.from_microgrid(microgrid, clip_actions=True)
+
+        out_of_range_action = {
+            'battery': [np.array([-30])],
+            'genset': [np.array([0, 0])],
+            'grid': [np.array([0.0])]
+        }
+
+        expected_clipped_action = {
+            'battery': [np.array([-20])],
+            'genset': [np.array([0, 0])],
+            'grid': [np.array([0.0])]
+        }
+
+        clipped_action = env.clip_action(out_of_range_action)
+
+        self.assertEqual(clipped_action, expected_clipped_action)
 
 
 class TestNetLoadContinuousEnvSlackModule(TestCase):
