@@ -29,3 +29,33 @@ class DecayTransitionModel(BatteryTransitionModel):
         current_efficiency = self._current_efficiency(efficiency, current_step)
 
         return super().transition(external_energy_change, efficiency=current_efficiency)
+
+
+class DecayCycleTransitionModel(DecayTransitionModel):
+    # https://en.wikipedia.org/wiki/Capacity_loss
+
+    yaml_tag = u"!DecayCycleTransitionModel"
+
+    def __init__(self, decay_rate=1-2.48e-4):
+        super().__init__(None)
+        self.decay_rate_per_cycle = decay_rate
+        self.cycle_amount = None
+        self.num_cycles = 0
+
+    def _current_efficiency(self, efficiency, current_step):
+        self.decay_rate = self.decay_rate_per_cycle ** self.num_cycles
+        return super()._current_efficiency(efficiency, current_step)
+
+    def _update_num_cycles(self, external_energy_change, max_capacity, min_capacity):
+        if self.cycle_amount is None:
+            self.cycle_amount = max_capacity - min_capacity
+
+        if external_energy_change < 0:
+            return
+
+        self.num_cycles += external_energy_change / self.cycle_amount
+
+    def transition(self, external_energy_change, efficiency, current_step, max_capacity, min_capacity, **kwargs):
+        self._update_num_cycles(external_energy_change, max_capacity, min_capacity)
+
+        return super().transition(external_energy_change, efficiency, current_step)
