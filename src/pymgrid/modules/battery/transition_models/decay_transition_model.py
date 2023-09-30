@@ -16,6 +16,7 @@ class DecayTransitionModel(BatteryTransitionModel):
         """
         self.decay_rate = decay_rate
         self.initial_step = None
+        self._previous_step = 0
 
     def reset(self, current_step=0):
         self.initial_step = current_step
@@ -24,8 +25,10 @@ class DecayTransitionModel(BatteryTransitionModel):
         return efficiency * (self.decay_rate ** (current_step-self.initial_step))
 
     def _update_step(self, current_step):
-        if self.initial_step is None or current_step <= self.initial_step:
+        if self.initial_step is None or current_step <= self.initial_step or current_step != self._previous_step + 1:
             self.reset(current_step)
+
+        self._previous_step = current_step
 
     def transition(self, external_energy_change, efficiency, current_step, **kwargs):
         self._update_step(current_step)
