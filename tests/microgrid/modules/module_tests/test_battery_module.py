@@ -209,3 +209,50 @@ class TestDecayBatteryModule(TestCase):
 
         self.assertEqual(battery.max_act, DEFAULT_PARAMS['max_discharge'])
         self.assertEqual(info['provided_energy'],  0.5 * DEFAULT_PARAMS['max_discharge'])
+
+    def test_three_step_discharge(self):
+        efficiency = 1.0
+        decay_rate = 0.5
+        energy_amount = 100.0
+
+        battery_transition_model = DecayTransitionModel(decay_rate=decay_rate)
+
+        for j in range(3):
+            with self.subTest(step=j):
+                transition = battery_transition_model.transition(energy_amount, efficiency, j)
+                self.assertEqual(transition, energy_amount * (decay_rate ** j))
+
+    def test_multiple_steps_ahead(self):
+        init_soc = 1.0
+        efficiency = 1.0
+        decay_rate = 0.5
+
+        battery_transition_model = DecayTransitionModel(decay_rate=decay_rate)
+        battery = get_battery(battery_transition_model=battery_transition_model, init_soc=init_soc, efficiency=efficiency)
+
+        battery_transition_model._previous_step = 5
+        self.assertEqual(battery_transition_model._current_efficiency(efficiency=1.0, current_step=6), 0.5**6)
+
+        self.assertEqual(battery.max_act, DEFAULT_PARAMS['max_discharge'])
+
+    def test_decay_transition_reset_after_decay_jump_back(self):
+        decay_rate = 0.5
+        energy_amount = 50
+
+        battery_transition_model = DecayTransitionModel(decay_rate=decay_rate)
+        battery_transition_model.initial_step = 0
+        battery_transition_model._previous_step = 5
+
+        transition = battery_transition_model.transition(energy_amount, 1.0, current_step=2)
+        self.assertEqual(transition, energy_amount)
+
+    def test_decay_transition_reset_after_decay_jump_forward(self):
+        decay_rate = 0.5
+        energy_amount = 50
+
+        battery_transition_model = DecayTransitionModel(decay_rate=decay_rate)
+        battery_transition_model.initial_step = 0
+        battery_transition_model._previous_step = 5
+
+        transition = battery_transition_model.transition(energy_amount, 1.0, current_step=10)
+        self.assertEqual(transition, energy_amount)
