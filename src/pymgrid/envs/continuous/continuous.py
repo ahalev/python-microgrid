@@ -192,10 +192,18 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         if self._slack_module is None:
             return action
 
-        slack_action = np.ones(self._slack_module_ref.action_space.shape)
         current_prod = sum([act[-1] for act_list in action.values() for act in act_list])
         remaining_net_load = net_load - current_prod
+
+        if remaining_net_load > 0:
+            slack_action = np.ones(self._slack_module_ref.action_space.shape)
+        else:
+            # Genset off. Ignored in all other slack modules; overwritten below.
+            slack_action = np.zeros(self._slack_module_ref.action_space.shape)
+
         slack_action[-1] = remaining_net_load
+
+
 
         module_name, module_num = self._slack_module
 
