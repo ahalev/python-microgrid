@@ -280,7 +280,7 @@ class BaseTimeSeriesMicrogridModule(BaseMicrogridModule):
         View of :attr:`.GaussianNoiseForecaster.increase_uncertainty`.
 
         Required for serialization as a mirror to the class parameter.
-        Will only ever be True if ``self.forecaster`` is a :class:`.GaussianNoiseForecaster`.
+        Will only ever be True if :attr:`.forecaster` is a :class:`.GaussianNoiseForecaster`.
 
         Returns
         -------
