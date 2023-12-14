@@ -285,7 +285,7 @@ class BaseTimeSeriesMicrogridModule(BaseMicrogridModule):
         Returns
         -------
         forecaster_increase_uncertainty : bool
-            Associated attribute of ``self.forecaster``.
+            Associated attribute of `:attr:`.forecaster`.
 
         """
         try:
