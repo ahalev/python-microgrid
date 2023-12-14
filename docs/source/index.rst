@@ -12,7 +12,7 @@ python-microgrid documentation
 **Maintainer**: Avishai Halev
 
 *python-microgrid* is a Python library to simulate tertiary control of electrical microgrids.
-It is an extension of TotalEnergies' [*pymgrid*](https://github.com/Total-RD/pymgrid). *python-microgrid* allows
+It is an extension of TotalEnergies' [pymgrid](https://github.com/Total-RD/pymgrid). *python-microgrid* allows
 users to create and customize microgrids of their choosing. These microgrids can then be controlled using a user-defined
 algorithm or one of the control algorithms contained in *python-microgrid*: rule-based control and model predictive control.
 
