@@ -226,7 +226,7 @@ class Microgrid(yaml.YAMLObject):
             self._set_initial_step(initial_step, modules_only=True)
             self._set_final_step(final_step, modules_only=True)
 
-    @deprecation_warning('step')
+    @deprecation_warning('Microgrid.step')
     def run(self, control, normalized=True):
         return self.step(control, normalized=normalized)
 
