@@ -103,7 +103,7 @@ certain number of steps, results can be viewed by calling microgrid.get_log.
 ```python
 >> for j in range(10):
 >>    action = microgrid.sample_action(strict_bound=True)
->>    microgrid.run(action)
+>>    microgrid.step(action)
 
 >> microgrid.get_log(drop_singleton_key=True)
 
