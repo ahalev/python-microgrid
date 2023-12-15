@@ -234,7 +234,8 @@ class BaseMicrogridEnv(Microgrid, Env):
         self._log_action(action, normalized)
 
         obs, reward, done, info = super().step(action, normalized=normalized)
-        obs = self._get_obs(obs)
+        obs = self._get_obs()
+
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
 
         return obs, reward, done, info
