@@ -26,12 +26,11 @@ def deprecation_warning(successor, msg=None):
     return decorator
 
 
-def deprecation_err(successor, msg=None):
-    # TODO (ahalev) use obj_linkcode here
+def deprecation_err(successor, version=None, msg=None):
     """
-    Decorator for warning of future deprecation
+    Decorator for raising error on deprecated method or function.
 
-    Raises a DeprecationWarning on the wrapped function and suggests using `successor` instead.
+    Raises a DeprecatedError on the wrapped function and suggests using `successor` instead.
     If msg is not None, raises a future warning with said message. In this case `successor` is ignored.
     """
 
@@ -39,8 +38,8 @@ def deprecation_err(successor, msg=None):
 
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
-            # TODO (ahalev) get this version
-            _msg = msg or f"Function '{func.__name__}' is deprecated as of version {'version'}. "\
+            version_msg = f' as of version {version}' if version else ''
+            _msg = msg or f"Function '{func.__name__}' is deprecated{version_msg}. "\
                           f"Use '{successor}' instead."
 
             raise DeprecatedError(_msg)
