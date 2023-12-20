@@ -423,4 +423,4 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     @classmethod
     def load(cls, stream):
-        return cls(super().load(stream))
+        return cls.from_microgrid(super().load(stream))
