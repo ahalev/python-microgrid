@@ -39,7 +39,7 @@ def deprecation_err(successor, version=None, msg=None):
         @functools.wraps(func)
         def wrapper(self, *args, **kwargs):
             version_msg = f' as of version {version}' if version else ''
-            _msg = msg or f"Function '{func.__name__}' is deprecated{version_msg}. "\
+            _msg = msg or f"Function '{func.__qualname__}' is deprecated{version_msg}. "\
                           f"Use '{successor}' instead."
 
             raise DeprecatedError(_msg)
