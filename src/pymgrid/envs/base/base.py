@@ -7,7 +7,7 @@ from gym.spaces import Box, Dict, Tuple, flatten_space, flatten
 from abc import abstractmethod
 
 from pymgrid import NonModularMicrogrid, Microgrid
-from pymgrid.envs.base.skip_init import skip_init
+from pymgrid.errors.env_signature import environment_signature_error
 
 
 class BaseMicrogridEnv(Microgrid, Env):
@@ -70,26 +70,6 @@ class BaseMicrogridEnv(Microgrid, Env):
     observation_space = None
     'Space object corresponding to valid observations.'
 
-    def __new__(cls, modules, *args, **kwargs):
-        if isinstance(modules, (NonModularMicrogrid, Microgrid)):
-            import warnings
-            warnings.warn('Initializing an environment with a microgrid will be deprecated in a future version.'
-                          'Use from_microgrid() instead.', category=FutureWarning)
-
-            instance = cls.from_microgrid(modules, **kwargs)
-
-        elif isinstance(modules, int):
-            import warnings
-            warnings.warn('Initializing an environment with a scenario integer will be deprecated in a future version.'
-                          'Use from_scenario() instead.', category=FutureWarning)
-            instance = cls.from_scenario(modules, **kwargs)
-
-        else:
-            return super().__new__(cls)
-
-        cls.__init__ = skip_init(cls, cls.__init__)
-        return instance
-
     def __init__(self,
                  modules,
                  add_unbalanced_module=True,
@@ -102,6 +82,9 @@ class BaseMicrogridEnv(Microgrid, Env):
                  step_callback=None,
                  reset_callback=None
                  ):
+
+        if isinstance(modules, (NonModularMicrogrid, Microgrid, int)):
+            environment_signature_error(self.__class__.__name__, modules)
 
         super().__init__(modules,
                          add_unbalanced_module=add_unbalanced_module,
