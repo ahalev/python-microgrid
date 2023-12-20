@@ -557,7 +557,7 @@ class ModelPredictiveControl:
         for _ in tqdm(range(num_iter), desc="MPC Progress", disable=(not verbose)):
             control = self.get_action()
 
-            _, _, done, _ = self.microgrid.run(control, normalized=False)
+            _, _, done, _ = self.microgrid.step(control, normalized=False)
 
             if done:
                 break

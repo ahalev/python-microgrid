@@ -85,7 +85,7 @@ class RuleBasedControl(PriorityListAlgo):
 
         for _ in tqdm(range(self._get_num_iter(max_steps)), desc="RBC Progress", disable=(not verbose)):
             action = self.get_action()
-            _, _, done, _ = self.microgrid.run(action, normalized=False)
+            _, _, done, _ = self.microgrid.step(action, normalized=False)
             if done:
                 break
 
