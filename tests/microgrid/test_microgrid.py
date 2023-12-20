@@ -239,14 +239,14 @@ class TestMicrogrid(TestCase):
 
         for j in range(4):
             with self.subTest(step=j):
-                microgrid.run(microgrid.sample_action())
+                microgrid.step(microgrid.sample_action())
                 self.assertEqual(microgrid.current_step, j+1)
 
     def test_current_step_after_reset(self):
         microgrid = get_modular_microgrid()
         self.assertEqual(microgrid.current_step, 0)
 
-        microgrid.run(microgrid.sample_action())
+        microgrid.step(microgrid.sample_action())
         self.assertEqual(microgrid.current_step, 1)
 
         microgrid.reset()
@@ -401,7 +401,7 @@ class TestMicrogridLoadPV(TestCase):
         control = microgrid.get_empty_action()
         self.assertEqual(len(control), 0)
 
-        obs, reward, done, info = microgrid.run(control)
+        obs, reward, done, info = microgrid.step(control)
         loss_load = self.load_ts[step_number]-self.pv_ts[step_number]
         loss_load_cost = self.microgrid.modules.balancing[0].loss_load_cost * max(loss_load, 0)
 
