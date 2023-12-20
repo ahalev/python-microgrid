@@ -4,7 +4,7 @@ class PymgridError(Exception):
     """
 
 
-class DeprecationError(PymgridError):
+class DeprecatedError(PymgridError):
     """
     Code deprecation error.
     """

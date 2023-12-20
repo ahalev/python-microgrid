@@ -1,9 +1,10 @@
 import functools
 import warnings
 
+from pymgrid.errors import PymgridDeprecationWarning, DeprecatedError
+
 
 def deprecation_warning(successor, msg=None):
-    # TODO (ahalev) use obj_linkcode here
     """
     Decorator for warning of future deprecation
 
@@ -18,7 +19,7 @@ def deprecation_warning(successor, msg=None):
             _msg = msg or f"Function '{func.__qualname__}' is deprecated and will be removed in a future version. "\
                           f"Use '{successor}' instead."
 
-            warnings.warn(_msg, category=DeprecationWarning)
+            warnings.warn(_msg, category=PymgridDeprecationWarning)
 
             return func(self, *args, **kwargs)
         return wrapper
@@ -46,7 +47,3 @@ def deprecation_err(successor, msg=None):
 
         return wrapper
     return decorator
-
-
-class DeprecatedError(Exception):
-    pass
