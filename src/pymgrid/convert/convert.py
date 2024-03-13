@@ -8,6 +8,7 @@ def to_modular(nonmodular, raise_errors=False):
     modules = [('load', get_module('load', nonmodular, raise_errors)),
                ('unbalanced_energy', get_module('unbalanced_energy', nonmodular, raise_errors))]
     for component, exists in nonmodular.architecture.items():
+        component = component.lower()
         if exists:
             module = get_module(component, nonmodular, raise_errors)
             modules.append((component, module))
