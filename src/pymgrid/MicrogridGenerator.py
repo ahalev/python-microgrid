@@ -112,7 +112,8 @@ class MicrogridGenerator:
     def __init__(self, nb_microgrid=10,
                  random_seed=42,
                  timestep=1,
-                 path=str(Path(__file__).parent)):
+                 path=str(Path(__file__).parent),
+                 verbose=True):
         
         np.random.seed(random_seed)
         self.microgrids= [] # generate a list of microgrid object
@@ -120,6 +121,7 @@ class MicrogridGenerator:
         self.nb_microgrids=nb_microgrid
         self.timestep=1
         self.path=path
+        self.verbose = verbose
 
 
     ###########################################
@@ -132,7 +134,11 @@ class MicrogridGenerator:
         data_files = list(_path.glob("*.csv"))
         if not len(data_files):
             raise NameError(f"Unable to find csv data files in {path}")
-        return pd.read_csv(np.random.choice(data_files))
+
+        data_file = np.random.choice(data_files)
+        if self.verbose:
+            print(f'{data_file=}')
+        return pd.read_csv(data_file)
 
     def _scale_ts(self, df_ts, size, scaling_method='sum'):
         """ Scales a time series based on either the sum or the maximum of the time series."""
@@ -396,6 +402,8 @@ class MicrogridGenerator:
         convert = lambda x: x.to_modular() if modular else x
 
         for i in range(self.nb_microgrids):
+            if self.verbose:
+                print(f'Generating microgrid ({i})')
             #size=self._size_mg()
             self.microgrids.append(convert(self._create_microgrid()))
         
@@ -454,6 +462,10 @@ class MicrogridGenerator:
         bin_genset, bin_grid = self._bin_genset_grid()
 
         architecture = {'PV':1, 'battery':1, 'genset':bin_genset, 'grid':bin_grid}
+
+        if self.verbose:
+            print(f'{architecture=}')
+
         size_load = self._size_load()
         load = self._scale_ts(self._get_load_ts(), size_load, scaling_method='max') #obtain dataframe of loads
         size = self._size_mg(load, size_load) #obtain a dictionary of mg sizing components
