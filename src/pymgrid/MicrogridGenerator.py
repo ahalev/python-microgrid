@@ -380,7 +380,7 @@ class MicrogridGenerator:
         #random number > 3 < 20
         # polynomial for fuel consumption
 
-        _size_genset = int(np.ceil(np.max(load)/max_operating_loading))
+        _size_genset = int(np.ceil(np.max(load, axis=0)/max_operating_loading))
 
         return _size_genset
 
@@ -388,7 +388,7 @@ class MicrogridGenerator:
     def _size_battery(self, load):
         """ Function that returns the capacity of the battery, equivalent to 3 to 5 hours of mean load. """
         #energy duration
-        battery = int(np.ceil(np.random.randint(low=3,high=6)*np.mean(load).item()))
+        battery = int(np.ceil(np.random.randint(low=3,high=6)*np.mean(load, axis=0).item()))
         return battery
 
 
