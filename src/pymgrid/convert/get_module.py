@@ -5,7 +5,7 @@ from pymgrid.modules import LoadModule, RenewableModule, BatteryModule, GridModu
 def get_module(component, nonmodular, raise_errors):
     if component == 'load':
         return get_load_module(nonmodular, raise_errors)
-    elif component == 'PV':
+    elif component == 'pv':
         return get_pv_module(nonmodular, raise_errors)
     elif component == 'battery':
         return get_battery_module(nonmodular, raise_errors)
