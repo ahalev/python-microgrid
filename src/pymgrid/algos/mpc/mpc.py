@@ -922,7 +922,7 @@ class ModelPredictiveControl:
 
             grid_max_import, grid_max_export = 0, 0
         else:
-            grid_status = np.ones(self.horizon)
+            grid_status = grid.grid_status
 
             price_import = grid.import_price
             price_export = grid.export_price
