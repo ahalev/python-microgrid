@@ -227,7 +227,6 @@ def _add_cost_co2(params_dict, cost_co2):
 
 
 def _add_genset_polynom(params_dict):
-    np.random.seed(0)
     warn('Getting genset_polynom parameters randomly')
     polynom = [np.random.rand() * 10, np.random.rand(), np.random.rand() / 10]
 
