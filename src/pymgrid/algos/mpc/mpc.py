@@ -107,9 +107,7 @@ class ModelPredictiveControl:
         parameters = self._parse_microgrid()
 
         self.problem = self._create_problem(*parameters)
-        self._passed_solver = solver
-        self._solver = self._get_solver()
-        self._all_solvers = self._solvers(solver)
+        self._solver, self._all_solvers = self._solvers(solver)
 
     @property
     def has_genset(self):
@@ -405,30 +403,7 @@ class ModelPredictiveControl:
         else:
             solvers.append(cp.CLARABEL)
 
-        return solvers
-
-    def _get_solver(self, failure=False):
-        if not failure:
-            logger.info("Using default solver." if self._passed_solver is None else f"Using {self._passed_solver} solver.")
-            return self._passed_solver
-
-        # failure
-
-        if "MOSEK" in cp.installed_solvers():
-            solver = cp.MOSEK
-        elif "GLPK_MI" in cp.installed_solvers() or self._solver == cp.MOSEK:
-            solver = cp.GLPK_MI
-        elif self.problem.is_mixed_integer():
-            assert self.has_genset
-
-            raise RuntimeError("If microgrid has a genset, the cvxpy problem becomes mixed integer. Either MOSEK or "
-                               "CVXOPT must be installed.\n"
-                               "You can install both by calling pip install -e .'[genset_mpc]' in the root folder of "
-                               "pymgrid. Note that MOSEK requires a license; see https://www.mosek.com/ for details.\n"
-                               "Academic and trial licenses are available.")
-
-        logger.info(f" {self._solver} Solver failed. Retrying with solver={solver}")
-        return solver
+        return solvers[0], solvers
 
     def _set_parameters(self, load_vector, pv_vector, grid_vector, import_price, export_price,
                         e_max, e_min, p_max_charge, p_max_discharge,
