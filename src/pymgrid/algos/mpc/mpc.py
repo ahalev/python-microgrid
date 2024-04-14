@@ -1,5 +1,6 @@
 import time
 from copy import deepcopy
+from contextlib import contextmanager
 from tqdm import tqdm
 import cvxpy as cp
 import numpy as np
@@ -835,26 +836,31 @@ class ModelPredictiveControl:
         # if self.problem.status == 'infeasible':
         #     warn("Infeasible problem")
 
-        for solver in self.solvers():
-            self.problem.solve(warm_start=True, solver=solver)
+        while True:
+            with self.solver_context() as solver:
+                self.problem.solve(warm_start=True, solver=solver)
+                break
 
         if self.is_modular:
             return self._extract_modular_control(load_vector, verbose)
         else:
             return self._extract_control_dict(return_steps, pv_vector, load_vector)
 
-    def solvers(self):
-        for solver in self._all_solvers:
-            try:
-                yield solver
-            except SOLVER_ERRS as e:
-                if self.problem.status == 'infeasible':
-                    warn("Infeasible problem")
+    @contextmanager
+    def solver_context(self):
+        try:
+            yield self._solver
+        except SOLVER_ERRS as e:
+            if self.problem.status == 'infeasible':
+                warn("Infeasible problem")
 
-                if solver == self._all_solvers[-1]:
-                    raise cp.error.SolverError(f'Unable to solve problem with solvers: {self._all_solvers}') from e
-            else:
-                break
+            try:
+                self._solver = self._all_solvers[self._all_solvers.index(self._solver)+1]
+            except IndexError:
+                msg = f'Unable to solve problem with any of the solvers: {self._all_solvers}. ' \
+                      f'See callstack above for additional info.'
+
+                raise cp.error.SolverError(msg) from e
 
     def _extract_control_dict(self, return_steps, pv_vector, load_vector):
         if return_steps == 0:
