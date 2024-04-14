@@ -837,7 +837,6 @@ class ModelPredictiveControl:
 
         for solver in self.solvers():
             self.problem.solve(warm_start=True, solver=solver)
-            break
 
         if self.is_modular:
             return self._extract_modular_control(load_vector, verbose)
@@ -849,10 +848,13 @@ class ModelPredictiveControl:
             try:
                 yield solver
             except SOLVER_ERRS as e:
+                if self.problem.status == 'infeasible':
+                    warn("Infeasible problem")
+
                 if solver == self._all_solvers[-1]:
                     raise cp.error.SolverError(f'Unable to solve problem with solvers: {self._all_solvers}') from e
             else:
-                raise StopIteration  # this should never hit, should break out first or hit above exception
+                break
 
     def _extract_control_dict(self, return_steps, pv_vector, load_vector):
         if return_steps == 0:
