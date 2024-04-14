@@ -19,6 +19,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+if mosek is not None:
+    SOLVER_ERRS = mosek.Error, cp.error.SolverError
+else:
+    SOLVER_ERRS = cp.error.SolverError
+
+
 """
 Attributes:
 --------------
@@ -101,6 +108,7 @@ class ModelPredictiveControl:
         self.problem = self._create_problem(*parameters)
         self._passed_solver = solver
         self._solver = self._get_solver()
+        self._all_solvers = self._solvers(solver)
 
     @property
     def has_genset(self):
@@ -372,6 +380,31 @@ class ModelPredictiveControl:
         objective = cp.Minimize(self.costs @ self.p_vars)
 
         return cp.Problem(objective, constraints)
+
+    def _solvers(self, solver=None):
+        solvers = []
+
+        if solver is not None:
+            solvers.append(solver)
+
+        if 'MOSEK' in cp.installed_solvers():
+            solvers.append(cp.MOSEK)
+
+        if 'GLPK_MI' in cp.installed_solvers():
+            solvers.append(cp.GLPK_MI)
+
+        if self.problem.is_mixed_integer():
+            if not solvers:
+                raise RuntimeError(
+                    "If microgrid has a genset, the cvxpy problem becomes mixed integer. Either MOSEK or "
+                    "CVXOPT must be installed.\n"
+                    "You can install both by calling pip install -e .'[genset_mpc]' in the root folder of "
+                    "pymgrid. Note that MOSEK requires a license; see https://www.mosek.com/ for details.\n"
+                    "Academic and trial licenses are available.")
+        else:
+            solvers.append(cp.CLARABEL)
+
+        return solvers
 
     def _get_solver(self, failure=False):
         if not failure:
@@ -793,19 +826,33 @@ class ModelPredictiveControl:
         else:
             errs = cp.error.SolverError
 
-        try:
-            self.problem.solve(warm_start=True, solver=self._solver)
-        except errs:
-            self._solver = self._get_solver(failure=True)
-            self.problem.solve(warm_start=True, solver=self._solver)
+        # try:
+        #     self.problem.solve(warm_start=True, solver=self._solver)
+        # except errs:
+        #     self._solver = self._get_solver(failure=True)
+        #     self.problem.solve(warm_start=True, solver=self._solver)
+        #
+        # if self.problem.status == 'infeasible':
+        #     warn("Infeasible problem")
 
-        if self.problem.status == 'infeasible':
-            warn("Infeasible problem")
+        for solver in self.solvers():
+            self.problem.solve(warm_start=True, solver=solver)
+            break
 
         if self.is_modular:
             return self._extract_modular_control(load_vector, verbose)
         else:
             return self._extract_control_dict(return_steps, pv_vector, load_vector)
+
+    def solvers(self):
+        for solver in self._all_solvers:
+            try:
+                yield solver
+            except SOLVER_ERRS as e:
+                if solver == self._all_solvers[-1]:
+                    raise cp.error.SolverError(f'Unable to solve problem with solvers: {self._all_solvers}') from e
+            else:
+                raise StopIteration  # this should never hit, should break out first or hit above exception
 
     def _extract_control_dict(self, return_steps, pv_vector, load_vector):
         if return_steps == 0:
