@@ -376,7 +376,7 @@ class ModelPredictiveControl:
     def _get_solver(self, failure=False):
         if not failure:
             logger.info("Using default solver." if self._passed_solver is None else f"Using {self._passed_solver} solver.")
-            return self._passed_solver or cp.CLARABEL
+            return self._passed_solver
 
         # failure
 
