@@ -797,20 +797,6 @@ class ModelPredictiveControl:
                              e_max, e_min, p_max_charge, p_max_discharge,
                              p_max_import, p_max_export, soc_0, p_genset_max, cost_co2, grid_co2, genset_co2,)
 
-        if mosek is not None:
-            errs = mosek.Error, cp.error.SolverError
-        else:
-            errs = cp.error.SolverError
-
-        # try:
-        #     self.problem.solve(warm_start=True, solver=self._solver)
-        # except errs:
-        #     self._solver = self._get_solver(failure=True)
-        #     self.problem.solve(warm_start=True, solver=self._solver)
-        #
-        # if self.problem.status == 'infeasible':
-        #     warn("Infeasible problem")
-
         while True:
             with self.solver_context() as solver:
                 self.problem.solve(warm_start=True, solver=solver)
