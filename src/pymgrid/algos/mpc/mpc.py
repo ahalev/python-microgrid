@@ -382,7 +382,7 @@ class ModelPredictiveControl:
 
         if "MOSEK" in cp.installed_solvers():
             solver = cp.MOSEK
-        elif "GLPK_MI" in cp.installed_solvers():
+        elif "GLPK_MI" in cp.installed_solvers() or self._solver == cp.MOSEK:
             solver = cp.GLPK_MI
         elif self.problem.is_mixed_integer():
             assert self.has_genset
