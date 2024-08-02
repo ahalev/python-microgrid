@@ -237,7 +237,7 @@ class Microgrid(yaml.YAMLObject):
 
         Parameters
         ----------
-        control : dict[str, list[float]]
+        control : dict[str, np.typing.arrayLike]
             Actions to pass to each fixed module.
         normalized : bool, default True
             Whether ``control`` is a normalized value or not. If not, each module de-normalizes its respective action.
