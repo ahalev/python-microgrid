@@ -600,6 +600,49 @@ class Microgrid(yaml.YAMLObject):
                 except AttributeError:
                     pass
 
+    def compute_net_load(self, normalized=False):
+        """
+        Compute the net load at the current step.
+
+        Net load is load minus renewables.
+        -------
+
+        Returns
+        -------
+        net_load : float
+            Net load.
+
+        """
+
+        try:
+            fixed_consumption = self.modules.fixed.get_attrs('max_consumption', as_pandas=False, drop_attr_names=True)
+            fixed_consumption = np.sum(list(fixed_consumption.values()))
+        except AttributeError:
+            fixed_consumption = 0.0
+        except IndexError:
+            # Exhausted available data. Episode should be over
+            assert self.current_step == self.final_step
+            return 0.0
+
+        try:
+            flex_max_prod = [m.max_production for m in self.modules.flex.iterlist() if m.marginal_cost == 0]
+        except IndexError:
+            # Exhausted available data. Episode should be over
+            assert self.current_step == self.final_step
+            return 0.0
+
+        flex_production = sum(flex_max_prod)
+
+        net_load = fixed_consumption - flex_production
+
+        if normalized:
+            if fixed_consumption:
+                return net_load / fixed_consumption
+            return -1.0
+
+        return net_load
+
+
     def get_forecast_horizon(self):
         """
         Get the forecast horizon of timeseries modules contained in the microgrid.
