@@ -72,7 +72,7 @@ def _transform_builtins(d, normalized=False):
 
 def extract_builtins(d, act_or_obs='act', normalized=False):
     try:
-        d = d.groupby(level=0, axis=0).agg(list).T
+        d = d.groupby(level=0).agg(list).T
     except AttributeError:
         pass
 
