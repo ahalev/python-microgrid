@@ -26,7 +26,7 @@ class GridModule(BaseTimeSeriesMicrogridModule):
         If n_features=4, time series of ``(import_price, export_price, co2_per_kwH, grid_status)``
         in each column, respectively. ``time_series[:, -1]`` -- the grid status -- must be binary.
 
-    forecaster : callable, float, "oracle", or None, default None.
+    forecaster : callable, float, "oracle", None, default None.
         Function that gives a forecast n-steps ahead.
 
         * If ``callable``, must take as arguments ``(val_c: float, val_{c+n}: float, n: int)``, where
