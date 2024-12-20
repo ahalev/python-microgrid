@@ -133,7 +133,12 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         state_series = self.state_series()
 
-        observation_keys = self.observation_keys or state_series.index.get_level_values(-1)
+        if self.observation_keys is None:
+            observation_keys = state_series.index.get_level_values(-1)
+        else:
+            observation_keys = pd.Index(self.observation_keys)
+
+        observation_keys = observation_keys.drop_duplicates()
 
         if 'net_load' in observation_keys:
             obs_space['general'] = Tuple([Box(low=-np.inf, high=1, shape=(1, ), dtype=np.float64)])
