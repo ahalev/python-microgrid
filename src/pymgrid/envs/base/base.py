@@ -133,7 +133,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         state_series = self.state_series()
 
-        if self.observation_keys is None:
+        if self.observation_keys is None or len(self.observation_keys) == 0:
             observation_keys = state_series.index.get_level_values(-1)
         else:
             observation_keys = pd.Index(self.observation_keys)
