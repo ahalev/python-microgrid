@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import warnings
 
 from collections import OrderedDict
 from gym import Env
@@ -122,7 +123,19 @@ class BaseMicrogridEnv(Microgrid, Env):
         if net_load_pos.size:
             keys[[0, net_load_pos.item()]] = keys[[net_load_pos.item(), 0]]
 
-        return keys.tolist()
+        unique_keys, dupe_keys = [], []
+
+        for k in keys:
+            if k in unique_keys:
+                dupe_keys.append(k)
+                continue
+
+            unique_keys.append(k)
+
+        if dupe_keys:
+            warnings.warn(f'Found duplicated keys, will be dropped:\n\t{dupe_keys}')
+
+        return unique_keys
 
     @abstractmethod
     def _get_action_space(self, remove_redundant_actions=False):
