@@ -7,6 +7,7 @@ from copy import deepcopy
 from tests.helpers.test_case import TestCase
 from tests.helpers.modular_microgrid import get_modular_microgrid
 
+from pymgrid.modules import BatteryModule
 from pymgrid.envs import DiscreteMicrogridEnv, ContinuousMicrogridEnv, NetLoadContinuousMicrogridEnv
 from pymgrid.envs.base import BaseMicrogridEnv
 
@@ -150,6 +151,30 @@ class ObsKeysDuplicateKeysParent(ObsKeysNoNetLoadParent):
                 self.assertEqual(obs[np.isin(unique_obs_keys, matching_keys)], matching_values)
 
 
+class ObsKeysDuplicateModulesParent(Parent):
+    def setUp(self) -> None:
+        second_battery = BatteryModule(
+                    min_capacity=0,
+                    max_capacity=1000,
+                    max_charge=500,
+                    max_discharge=500,
+                    efficiency=1.0,
+                    init_soc=0.5,
+                    normalized_action_bounds=(0, 1))
+
+        microgrid = get_modular_microgrid(
+            additional_modules=[second_battery],
+        )
+
+        self.env = self.env_class.from_microgrid(microgrid, observation_keys=self.observation_keys)
+
+    @pass_if_parent
+    def test_pre_reset_state_series_invariant_to_observation_keys(self):
+        env = deepcopy(self.env)
+
+        self.assertEqual(env.state_series().shape, (15, ))
+
+
 class TestDiscrete(Parent):
     env_class = DiscreteMicrogridEnv
 
@@ -186,9 +211,22 @@ class TestNetLoadContinuousObsDuplicateKeys(ObsKeysDuplicateKeysParent):
     env_class = NetLoadContinuousMicrogridEnv
 
 
+class TestDiscreteDuplicateModules(ObsKeysDuplicateModulesParent):
+    env_class = DiscreteMicrogridEnv
+
+
+class TestContinuousDuplicateModules(ObsKeysDuplicateModulesParent):
+    env_class = ContinuousMicrogridEnv
+
+
+class TestNetLoadContinuousDuplicateModules(ObsKeysDuplicateModulesParent):
+    env_class = NetLoadContinuousMicrogridEnv
+
+
 def flatten_nested_dict(nested_dict):
     def extract_list(l):
-        assert len(l) == 1, 'reduction only works with length 1 lists'
-        return l[0].tolist()
+        # assert len(l) == 1, 'reduction only works with length 1 lists'
+        # return l[0].tolist()
+        return sum([_l.tolist() for _l in l], [])
 
     return functools.reduce(lambda x, y: x + extract_list(y), nested_dict.values(), [])
