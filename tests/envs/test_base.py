@@ -184,6 +184,7 @@ class TestContinuousObsDuplicateKeys(ObsKeysDuplicateKeysParent):
 class TestNetLoadContinuousObsDuplicateKeys(ObsKeysDuplicateKeysParent):
     env_class = NetLoadContinuousMicrogridEnv
 
+
 def flatten_nested_dict(nested_dict):
     def extract_list(l):
         assert len(l) == 1, 'reduction only works with length 1 lists'
