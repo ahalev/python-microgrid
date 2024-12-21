@@ -131,6 +131,24 @@ class ObsKeysWithNetLoadParent(ObsKeysNoNetLoadParent):
     observation_keys = ['net_load', 'soc', 'load_current', 'export_price_current']
 
 
+class ObsKeysDuplicateKeysParent(ObsKeysNoNetLoadParent):
+    observation_keys = ['net_load', 'soc', 'load_current', 'load_current', 'export_price_current']
+
+    def test_get_obs_correct_keys_in_modules(self):
+        env = deepcopy(self.env)
+        obs = env._get_obs()
+
+        unique_obs_keys = pd.Index(self.observation_keys).drop_duplicates().tolist()
+
+        for module in env.modules.iterlist():
+            module_state_dict = module.state_dict(normalized=True)
+            matching_keys = [obs_key for obs_key in unique_obs_keys if obs_key in module.state_dict().keys()]
+            matching_values = [module_state_dict[k] for k in matching_keys]
+
+            with self.subTest(module=module.name, keys=matching_keys):
+                self.assertEqual(obs[np.isin(unique_obs_keys, matching_keys)], matching_values)
+
+
 class TestDiscrete(Parent):
     env_class = DiscreteMicrogridEnv
 
@@ -154,6 +172,17 @@ class TestContinuousObsKeysNoNetLoad(ObsKeysNoNetLoadParent):
 class TestNetLoadContinuousObsKeysNoNetLoad(ObsKeysNoNetLoadParent):
     env_class = NetLoadContinuousMicrogridEnv
 
+
+class TestDiscreteObsDuplicateKeys(ObsKeysDuplicateKeysParent):
+    env_class = DiscreteMicrogridEnv
+
+
+class TestContinuousObsDuplicateKeys(ObsKeysDuplicateKeysParent):
+    env_class = ContinuousMicrogridEnv
+
+
+class TestNetLoadContinuousObsDuplicateKeys(ObsKeysDuplicateKeysParent):
+    env_class = NetLoadContinuousMicrogridEnv
 
 def flatten_nested_dict(nested_dict):
     def extract_list(l):
