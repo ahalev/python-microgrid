@@ -134,6 +134,7 @@ class ObsKeysWithNetLoadParent(ObsKeysNoNetLoadParent):
 class ObsKeysDuplicateKeysParent(ObsKeysNoNetLoadParent):
     observation_keys = ['net_load', 'soc', 'load_current', 'load_current', 'export_price_current']
 
+    @pass_if_parent
     def test_get_obs_correct_keys_in_modules(self):
         env = deepcopy(self.env)
         obs = env._get_obs()
