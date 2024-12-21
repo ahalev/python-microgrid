@@ -152,6 +152,8 @@ class ObsKeysDuplicateKeysParent(ObsKeysNoNetLoadParent):
 
 
 class ObsKeysDuplicateModulesParent(Parent):
+
+    @pass_if_parent
     def setUp(self) -> None:
         second_battery = BatteryModule(
                     min_capacity=0,
@@ -173,6 +175,20 @@ class ObsKeysDuplicateModulesParent(Parent):
         env = deepcopy(self.env)
 
         self.assertEqual(env.state_series().shape, (15, ))
+
+    @pass_if_parent
+    def test_state_series_values(self):
+        env = deepcopy(self.env)
+
+        expected_state_series = np.array([10., -60., 50., 1., 1., 0., 0., 0.5, 50., 0.5, 500, 1., 1., 1., 1.])
+        self.assertEqual(env.state_series(normalized=False).values, expected_state_series)
+
+    @pass_if_parent
+    def test_state_series_values_normalized(self):
+        env = deepcopy(self.env)
+
+        expected_state_series = np.array([1/6., 0., 1., 1., 1., 0., 0., 0.5, 0.5, 0.5, 0.5, 0., 0., 0., 0.])
+        self.assertEqual(env.state_series(normalized=True).values, expected_state_series)
 
 
 class TestDiscrete(Parent):
