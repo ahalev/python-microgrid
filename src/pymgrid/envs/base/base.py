@@ -112,6 +112,11 @@ class BaseMicrogridEnv(Microgrid, Env):
         keys = np.array(keys)
 
         possible_keys = self.potential_observation_keys()
+
+        if keys[0] == 'exclude_forecasts':
+            raise RuntimeError('This behavior is currently not working correctly.')
+            return possible_keys[~possible_keys.str.contains('forecast')].to_list()
+
         bad_keys = [key for key in keys if key not in possible_keys]
 
         if bad_keys:
